@@ -1,5 +1,7 @@
 package com.qad.util;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.widget.Toast;
 
@@ -10,10 +12,10 @@ import android.widget.Toast;
  */
 public class WToast {
 
-	private final Context context;
+	private final WeakReference<Context> context;
 	
 	public WToast(final Context context) {
-		this.context=context.getApplicationContext();
+		this.context=new WeakReference<Context>(context);
 	}
 	
 	/**
@@ -23,7 +25,8 @@ public class WToast {
 	 */
 	public void showMessage(Object msg)
 	{
-		Toast.makeText(context, msg+"", Toast.LENGTH_SHORT).show();
+		if(context.get()!=null)
+			Toast.makeText(context.get(), msg+"", Toast.LENGTH_SHORT).show();
 	}
 	
 	/**
@@ -32,7 +35,8 @@ public class WToast {
 	 */
 	public void showLongMessage(Object msg)
 	{
-		Toast.makeText(context, msg+"", Toast.LENGTH_LONG).show();
+		if(context.get()!=null)
+			Toast.makeText(context.get(), msg+"", Toast.LENGTH_LONG).show();
 	}
 	
 }

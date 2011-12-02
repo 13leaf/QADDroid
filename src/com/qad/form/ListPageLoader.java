@@ -16,7 +16,7 @@ public class ListPageLoader<Content> implements PageLoader<Content>{
 	
 	@Override
 	public boolean loadPage(int pageNo, int pageSize) {
-		pager.notifyPageLoad(LOAD_COMPLETE, pageNo, list.size(), (Content) list.get(pageNo-1));//应用pageNo-1是因为PageManager的页码认为从1开始
+		pager.notifyPageLoad(LOAD_COMPLETE, pageNo, list.size(), (Content) list.get(pageNo));
 		return true;
 	}
 

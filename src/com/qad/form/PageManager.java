@@ -76,7 +76,7 @@ public class PageManager<Content> {
 	/**
 	 * 假设分页是从第一页开始的
 	 */
-	public final static int START_NO=1;
+	public final static int START_NO=0;
 	
 	
 	public interface PageLoadListener {

@@ -16,7 +16,7 @@ public class ListPageLoader<Content> implements PageLoader<Content>{
 	
 	@Override
 	public boolean loadPage(int pageNo, int pageSize) {
-		pager.notifyPageLoad(LOAD_COMPLETE, pageNo, list.size(), (Content) list.get(pageNo));
+		pager.notifyPageLoad(LOAD_COMPLETE, pageNo, list.size()-1, (Content) list.get(pageNo));
 		return true;
 	}
 

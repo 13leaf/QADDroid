@@ -42,31 +42,6 @@ import com.qad.lang.util.Disks;
 public abstract class Files {
 
 	/**
-	 * 读取 UTF-8 文件全部内容
-	 * 
-	 * @param path
-	 *            文件路径
-	 * @return 文件内容
-	 */
-	public static String read(String path) {
-		File f = Files.findFile(path);
-		if (null == f)
-			throw Lang.makeThrow("Can not find file '%s'", path);
-		return read(f);
-	}
-
-	/**
-	 * 读取 UTF-8 文件全部内容
-	 * 
-	 * @param f
-	 *            文件
-	 * @return 文件内容
-	 */
-	public static String read(File f) {
-		return Lang.readAll(Streams.fileInr(f));
-	}
-
-	/**
 	 * 将内容写到一个文件内，内容对象可以是：
 	 * <ul>
 	 * <li>InputStream - 按二进制方式写入

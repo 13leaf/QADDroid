@@ -29,7 +29,7 @@ public class PageManager<Content> {
 	
 	private PageLoader<Content> mPageLoader;
 	
-	private int pageNo;//当前页码
+	private int pageNo=-1;//当前页码
 	
 	private int pageLoadSize;//加载页大小
 	

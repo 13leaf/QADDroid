@@ -76,7 +76,7 @@ public class PageManager<Content> {
 	/**
 	 * 假设分页是从第一页开始的
 	 */
-	public final static int START_NO=0;
+	public final int START_NO;
 	
 	
 	public interface PageLoadListener {
@@ -144,10 +144,13 @@ public class PageManager<Content> {
 	 * 无Loader的PageManager。当页载入更新时,应当手动触发notifyPageLoad
 	 * @param pageLoadSize
 	 */
-	public PageManager(int pageLoadSize)
+	public PageManager(int pageLoadSize,int startNo)
 	{
+		if(startNo<0 || pageLoadSize<=0) throw new IllegalArgumentException(String.format("Illegal pageLoadSize %s or startNo %s",startNo,pageLoadSize));
 		mPageLoader=new NonePageLoader();
 		this.pageLoadSize=pageLoadSize;
+		START_NO=startNo;
+		pageNo=startNo-1;
 	}
 	
 	/**
@@ -155,10 +158,24 @@ public class PageManager<Content> {
 	 * @param pageAble
 	 * @param pageLoadSize
 	 */
-	public PageManager(PageLoader<Content> pageAble,int pageLoadSize)
+	public PageManager(PageLoader<Content> pageAble,int pageLoadSize,int startNo)
 	{
+		if(pageAble==null) throw new NullPointerException("PageLoader can not be null!");
+		if(startNo<0 || pageLoadSize<=0) throw new IllegalArgumentException(String.format("Illegal pageLoadSize %s or startNo %s",startNo,pageLoadSize));
 		mPageLoader=pageAble;
 		this.pageLoadSize=pageLoadSize;
+		START_NO=startNo;
+		pageNo=startNo-1;
+	}
+	
+	/**
+	 * 默认从页码1开始
+	 * @param pageAble
+	 * @param pageLoadSize
+	 */
+	public PageManager(PageLoader<Content> pageAble,int pageLoadSize)
+	{
+		this(pageAble, pageLoadSize,1);
 	}
 	
 	/**

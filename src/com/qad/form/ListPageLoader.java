@@ -11,7 +11,7 @@ public class ListPageLoader<Content> implements PageLoader<Content>{
 	
 	public ListPageLoader(List<?> list){
 		this.list=list;
-		pager=new PageManager<Content>(this,1);
+		pager=new PageManager<Content>(this,1,0);//start from 0
 	}
 	
 	@Override

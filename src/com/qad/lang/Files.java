@@ -811,6 +811,11 @@ public abstract class Files {
 					fileList.add(file);
 			}
 		}
+		for(File file:rootDir.listFiles(filter))
+		{
+			if(file.isFile())
+				fileList.add(file);
+		}
 		return fileList.toArray(new File[fileList.size()]);
 	}
 
@@ -1060,18 +1065,89 @@ public abstract class Files {
 			return null;
 		}
 	}
+	
+	/**
+	 * 从起始文件到达目标文件的相对路径。<br>
+	 * 若两个文件不在一个驱动器上则将抛出异常。
+	 * 
+	 * @param original
+	 * @param target
+	 * @return
+	 * @throws IOException
+	 */
+	public static String toRelativePath(File original, File target)
+			throws IOException {
+		String relativePath = "";
+		String originalPath = original.getCanonicalPath();
+		String targetPath = target.getCanonicalPath();
+		String publicDir = getParentDir(originalPath, targetPath);
+		
+		if(null==publicDir) throw new IOException(String.format("original:%s\ntarget:%s have no public directory!", originalPath,targetPath));
+		if(originalPath.equals(publicDir)) return "."+targetPath.substring(publicDir.length(), targetPath.length());
+		relativePath=toParentRelative(originalPath,publicDir);
+		return "."+relativePath+targetPath.substring(publicDir.length(),targetPath.length());
+	}
+	
+	
+	private static String toParentRelative(String originalPath, String parentPath) {
+		String relative=originalPath.substring(parentPath.length(),originalPath.length());
+		return relative.replaceAll("[^\\\\]+", "..");
+	}
 
 	/**
-	 * 获取文件大小。若是个目录，则递归查找目录中所有文件，计算其总大小。
-	 * 
+	 * 返回两个路径的公共路径部分。若没有公共路径部分,则返回null
+	 * @param path1
+	 * @param path2
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getParentDir(String path1, String path2)
+			throws IOException {
+		if (path1.contains(".") || path2.contains(".")) {// not a canonicalPath
+			path1 = new File(path1).getCanonicalPath();
+			path2 = new File(path2).getCanonicalPath();
+		}
+		char[] originalChars = path1.toCharArray();
+		char[] targetChars = path2.toCharArray();
+		int i = -1;
+		while (++i < originalChars.length && i < targetChars.length) {// to get the latest both public start
+			if (originalChars[i] != targetChars[i]) {
+				--i;// back
+				break;
+			}
+		}
+		if(i==-1) return null;
+		else return path2.substring(0, i);
+	}
+
+	/**
+	 * 获取挂载目录的可用空间大小<br>
+	 * 注意,它并非计算目录文件总大小,而是剩余空间大小。
 	 * @param file
 	 * @return
 	 */
-	public static long fileSize(File file) {
+	public static long remainSize(File file) {
 		StatFs statFs = new StatFs(file.getAbsolutePath());
-		long fileSize = ((long) statFs.getBlockCount())
+		long fileSize = ((long) (statFs.getAvailableBlocks()))
 				* ((long) statFs.getBlockSize());// 避免溢出危险
 		return fileSize;
+	}
+	
+	/**
+	 * 若是文件,则返回文件大小。否则返回目录大小
+	 * @param file
+	 * @return
+	 */
+	public static long size(File file)
+	{
+		if(null==file) return 0;
+		if(file.isFile()) return file.length();
+		long size=0;
+		for(File aFile : scanFiles(file))//directory
+		{
+			size+=aFile.length();
+		}
+		return size;
 	}
 
 	/**
@@ -1082,7 +1158,7 @@ public abstract class Files {
 	 * @return
 	 */
 	public static String fileSizeString(File file) {
-		long fileSize = fileSize(file);
+		long fileSize = size(file);
 		if (fileSize >= 0 && fileSize < SIZE_BT) {
 			return fileSize + "B";
 		} else if (fileSize >= SIZE_BT && fileSize < SIZE_KB) {

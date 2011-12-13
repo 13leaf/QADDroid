@@ -5,8 +5,12 @@ import java.io.InputStream;
 
 import com.qad.lang.Streams;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
 
 public class Bitmaps {
 
@@ -91,5 +95,40 @@ public class Bitmaps {
 			return value.getWidth() * value.getHeight() * perPixel;
 		}
 		return 0;
+	}
+	
+	/**
+	 * 通过硬编码补足Bitmap xml布局中gravity和TileMode不能共存的缺陷。
+	 * @param res
+	 * @param originalId
+	 * @param scaledHeight
+	 * @return
+	 */
+	public static BitmapDrawable fillHorizontalAndRepeatX(Resources res,int originalId,int scaledHeight)
+	{
+		Bitmap original=BitmapFactory.decodeResource(res, originalId);
+		if(scaledHeight==0 || original.getHeight()==scaledHeight) {
+			BitmapDrawable drawable= new BitmapDrawable(original);
+			drawable.setTileModeX(TileMode.REPEAT);return drawable;
+		}
+		Bitmap scaled=Bitmap.createScaledBitmap(original, original.getWidth(),scaledHeight,true);
+		//release original
+		original.recycle();
+		original=null;
+		BitmapDrawable drawable=new BitmapDrawable(scaled);
+		drawable.setTileModeX(TileMode.REPEAT);
+		return drawable;
+	}
+	
+	/**
+	 * 压缩原图像为指定大小的缩略图。
+	 * @param source
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public static Bitmap extractThumbnail(Bitmap source,int width,int height)
+	{
+		return ThumbnailUtils.extractThumbnail(source, width, height);
 	}
 }

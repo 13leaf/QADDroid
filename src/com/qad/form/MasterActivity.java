@@ -104,7 +104,8 @@ public class MasterActivity extends BaseActivityGroup {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		//save current navigate
-		outState.putInt(STATE_CURRENT_NAVIGATEID, currentNavigatorView.getId());
+		if(currentNavigatorView!=null)
+			outState.putInt(STATE_CURRENT_NAVIGATEID, currentNavigatorView.getId());
 	}
 	
 	@Override
@@ -113,7 +114,8 @@ public class MasterActivity extends BaseActivityGroup {
 		//FIXME 若调用了bindNavigate包含showNow的重载。则无法跳过第一个启动的活动.加入Default跳转机制
 		if(savedInstanceState!=null){
 			int currentNavigateID=savedInstanceState.getInt(STATE_CURRENT_NAVIGATEID);
-			navigate(currentNavigateID);
+			if(currentNavigateID!=0)
+				navigate(currentNavigateID);
 		}
 	}
 	

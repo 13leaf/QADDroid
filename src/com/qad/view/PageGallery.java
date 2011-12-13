@@ -22,7 +22,7 @@ public class PageGallery extends Gallery {
 	private float downX = 0;
 
 	private ScrollDelegate mScrollDelegate;
-
+	
 	public interface ScrollDelegate {
 		void onScrollLeft(boolean scrollLeftAble);
 

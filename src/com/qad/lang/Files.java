@@ -15,7 +15,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -24,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 
@@ -1067,6 +1067,15 @@ public abstract class Files {
 	}
 	
 	/**
+	 * 是否已经加载SD卡
+	 * @return
+	 */
+	public static boolean isSDCardMounted()
+	{
+		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+	}
+	
+	/**
 	 * 从起始文件到达目标文件的相对路径。<br>
 	 * 若两个文件不在一个驱动器上则将抛出异常。
 	 * 
@@ -1134,7 +1143,8 @@ public abstract class Files {
 	}
 	
 	/**
-	 * 若是文件,则返回文件大小。否则返回目录大小
+	 * 若是文件,则返回文件大小。否则返回目录大小<br>
+	 * 若文件不存在,则返回-1
 	 * @param file
 	 * @return
 	 */
@@ -1142,6 +1152,7 @@ public abstract class Files {
 	{
 		if(null==file) return 0;
 		if(file.isFile()) return file.length();
+		if(!file.exists()) return -1;
 		long size=0;
 		for(File aFile : scanFiles(file))//directory
 		{
@@ -1157,44 +1168,46 @@ public abstract class Files {
 	 *            若传入的是个目录，将递归计算目录中所有文件的总大小
 	 * @return
 	 */
-	public static String fileSizeString(File file) {
-		long fileSize = size(file);
-		if (fileSize >= 0 && fileSize < SIZE_BT) {
-			return fileSize + "B";
-		} else if (fileSize >= SIZE_BT && fileSize < SIZE_KB) {
-			return fileSize / SIZE_BT + "KB";
-		} else if (fileSize >= SIZE_KB && fileSize < SIZE_MB) {
-			return fileSize / SIZE_KB + "MB";
-		} else if (fileSize >= SIZE_MB && fileSize < SIZE_GB) {
-			BigDecimal longs = new BigDecimal(Double.valueOf(fileSize + "")
-					.toString());
-			BigDecimal sizeMB = new BigDecimal(Double.valueOf(SIZE_MB + "")
-					.toString());
-			String result = longs.divide(sizeMB, SACLE,
-					BigDecimal.ROUND_HALF_UP).toString();
-			return result + "GB";
-		} else {
-			BigDecimal longs = new BigDecimal(Double.valueOf(fileSize + "")
-					.toString());
-			BigDecimal sizeMB = new BigDecimal(Double.valueOf(SIZE_GB + "")
-					.toString());
-			String result = longs.divide(sizeMB, SACLE,
-					BigDecimal.ROUND_HALF_UP).toString();
-			return result + "TB";
+	public static String sizeString(File file) {
+		return sizeString(file, DEFAULT_UNAVALIABLE);
+	}
+	
+	/**
+	 * 
+	 * @param file
+	 * @param unAvaliableInfo 当文件不可达时的提示信息
+	 * @return
+	 */
+	public static String sizeString(File file,String unAvaliableInfo) {
+		float fileSize = size(file);
+		if(fileSize<0) return unAvaliableInfo;
+		
+		String unit="";
+		float val=0f;
+		if(fileSize<SIZE_KB){
+			unit="B ";
+			val=fileSize/SIZE_KB;
+		}else if(fileSize<SIZE_MB){
+			unit="MB";
+			val=fileSize/SIZE_MB;
+		}else if(fileSize<SIZE_GB){
+			unit="GB";
+			val=fileSize/SIZE_GB;
 		}
+		String valString=String.format("%.2f", val);
+		if(valString.indexOf('.')==3) valString=valString.substring(0,3);//cut if have 3 digit
+		else valString=valString.substring(0,4);
+		return valString+unit;
 	}
 
-	// bt字节参考量
-	public static final long SIZE_BT = 1024L;
 	// KB字节参考量
-	public static final long SIZE_KB = SIZE_BT * 1024L;
+	public static final long SIZE_KB = 1024L;
 	// MB字节参考量
 	public static final long SIZE_MB = SIZE_KB * 1024L;
 	// GB字节参考量
 	public static final long SIZE_GB = SIZE_MB * 1024L;
 	// TB字节参考量
 	public static final long SIZE_TB = SIZE_GB * 1024L;
-
-	public static final int SACLE = 2;
-
+	
+	private static final String DEFAULT_UNAVALIABLE="读取文件/目录大小失败";
 }

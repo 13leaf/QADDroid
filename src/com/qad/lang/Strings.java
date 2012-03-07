@@ -608,4 +608,41 @@ public abstract class Strings {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * 转换半角字符到全角字符。
+	 * 转换的半角仅包括数字、字母、空格。
+	 * @param s
+	 * @return
+	 */
+	public static String convertSBC2DBC(String s)
+	{
+		if(s==null||s.length()==0) return s;
+		StringBuilder sb=new StringBuilder(s);
+		final int offset=0xff00-0x20;
+		for(int i=0;i<sb.length();i++)
+		{
+			char val=sb.charAt(i);
+			if(val==0x3000) {
+				val=0x20;
+				continue;
+			}
+			if(isSBC(val)){
+				val-=offset;
+				sb.setCharAt(i, val);
+			}
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * 该字符是否全角字符。仅匹配全角数字、字母与空格
+	 * @param ch
+	 * @return
+	 */
+	public static boolean isSBC(char ch)
+	{
+		if(ch==0x3000) return true;//特殊处理空格
+		return ch>0xff00&&ch<0xff5f;
+	}
 }

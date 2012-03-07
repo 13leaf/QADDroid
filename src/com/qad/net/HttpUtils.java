@@ -33,7 +33,7 @@ public class HttpUtils {
 	private static final String TAG = "HttpUtils";
 	private static final int CONNECTION_TIMEOUT = 3 * 1000;//1秒的等待时间
 	private static final int CONNECTION_SO_TIMEOUT=0;//无限等待socket
-
+	
 	public static HttpHost getProxy(Context ctx) {
 		return null;
 	}
@@ -166,5 +166,4 @@ public class HttpUtils {
 			return "";
 		}
 	}
-
 }

@@ -13,16 +13,41 @@ import android.provider.MediaStore;
  *
  */
 public class IntentTool {
-
+	
 	/**
-	 * 发送邮件
-	 * @param addresses 邮件地址
+	 * 获取一个安装apk文件的Intent
+	 * @param apkFile 欲下载的apk文件
 	 * @return
 	 */
-	public static Intent getEmailIntent(String[] addresses)
+	public static Intent getInstallIntent(File apkFile)
+	{
+		Uri uri = Uri.fromFile(apkFile);
+		Intent installIntent = new Intent(Intent.ACTION_VIEW);
+		installIntent.setDataAndType(uri,
+				"application/vnd.android.package-archive");
+		return installIntent;
+	}
+
+	/**
+	 * 发送邮件,可以添加附件。
+	 * @param addresses 邮件地址
+	 * @param subject 邮件标题
+	 * @param content 邮件内容
+	 * @param filePath 如不为空,则尝试添加包含该filePath的附件
+	 * @return
+	 */
+	public static Intent getEmailIntent(String[] addresses,String subject,String content,String filePath)
 	{
 		Intent intent=new Intent(Intent.ACTION_SEND);
 		intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+		intent.putExtra(Intent.EXTRA_TEXT, content);
+		if(filePath!=null){
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filePath));
+			intent.setType("image/jpeg");
+		}else {
+			intent.setType("text/plain");
+		}
 		return intent;
 	}
 	

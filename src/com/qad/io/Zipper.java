@@ -27,9 +27,9 @@ public class Zipper {
 		void handlerEntry(String fileName,byte[] content);
 	}
 
-	public static void unzip(InputStream is,EntryHandler handler) throws IOException
+	public static void unzip(InputStream is,String targetDir,EntryHandler handler) throws IOException
 	{
-		 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is,1024));
+		 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
 		 try {
 		     ZipEntry ze;
 		     while ((ze = zis.getNextEntry()) != null) {
@@ -40,8 +40,12 @@ public class Zipper {
 		             baos.write(buffer, 0, count);
 		         }
 		         String filename = ze.getName();
+//		         System.out.println(filename);
 		         byte[] bytes = baos.toByteArray();
-		         handler.handlerEntry(filename, bytes);
+		         if(ze.isDirectory())
+		        	 Files.makeDir(new File(targetDir,filename));
+		         else
+		        	 handler.handlerEntry(filename, bytes);
 		         // do something with 'filename' and 'bytes'...
 		     }
 		 } finally {
@@ -73,7 +77,7 @@ public class Zipper {
 	
 	public static void unzip(String zipPath,String targetDir) throws IOException
 	{
-		unzip(Streams.fileIn(zipPath), new UnzipFileHandler(targetDir));
+		unzip(Streams.fileIn(zipPath),targetDir, new UnzipFileHandler(targetDir));
 	}
 	
 }

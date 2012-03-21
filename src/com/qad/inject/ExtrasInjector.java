@@ -10,6 +10,7 @@ import com.qad.util.ReflectTool;
 
 /**
  * 通过注解实现的Extra内容注入。另请见 {@link InjectExtras}
+ * TODO 增加自动转型cast
  * @author 13leaf
  *
  */

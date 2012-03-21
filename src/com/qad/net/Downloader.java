@@ -54,7 +54,7 @@ public class Downloader {
 				targetOutputStream.write(block, 0, count);
 				downSize += count;
 				if (publisher != null) {
-					if(!publisher.publish(downSize, fullSize, (int) (Math
+					if(publisher.publish(downSize, fullSize, (int) (Math
 							.floor(downSize / (double) fullSize * 100)))){
 						break;
 					}

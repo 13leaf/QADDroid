@@ -127,7 +127,8 @@ public class BaseActivity extends Activity implements ServiceConnection{
 		super.onNewIntent(intent);
 		
 		//do the inject
-		ExtrasInjector.inject(getIntent().getExtras(), this);
+		if(intent!=null)
+			ExtrasInjector.inject(intent.getExtras(), this);
 	}
 	
 	@Override

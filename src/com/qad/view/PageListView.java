@@ -286,7 +286,7 @@ public  class PageListView extends ListView {
 			//
 			loadFail=false;
 			//已经是最后一页了
-			if(loadPageNo==pageSum)
+			if(loadPageNo>=pageSum)
 			{
 				removeFooterView(loadSwitcher);
 			}

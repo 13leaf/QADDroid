@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.AndroidRuntimeException;
 import android.util.SparseArray;
 
@@ -26,7 +25,7 @@ public abstract class BaseService extends Service {
 	/**
 	 * 指向服务引用
 	 */
-	protected BaseService me;
+	protected Service me;
 
 	private ContextTool mTool;
 
@@ -34,7 +33,9 @@ public abstract class BaseService extends Service {
 
 	private NotificationManager notificationManager;
 
-	public BaseService() {
+	@Override
+	public void onCreate() {
+		super.onCreate();
 		mWrapperContext = new BaseContext(this);
 		me = this;
 		//
@@ -121,44 +122,6 @@ public abstract class BaseService extends Service {
 	 */
 	public void startService(Class<? extends Service> serviceClass) {
 		mWrapperContext.startService(serviceClass);
-	}
-
-	/**
-	 * 启动一个前台服务，展示一个通知。<br>
-	 * 让该活动在通知中展示为一个"活动"，并且可以通过它启动活动组件。 <h3>尚未实现，勿调用</h3>
-	 * 
-	 * @param activityClass
-	 */
-	@Deprecated
-	public void startForeground(Class<? extends Activity> activityClass) {
-		// TODO 封装startForeground(Notification的那个方法)
-	}
-
-	/**
-	 * 以绑定方式启动service。通过返回的绑定连接实例可以进行通信<br>
-	 * 另请参照 @see {@link BindServiceConnection}
-	 * 
-	 * @param <T>
-	 *            IBinder强类型
-	 * @param intentService
-	 *            目标服务
-	 * @return 绑定连接
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Intent intentService) {
-		return mWrapperContext.bindService(intentService);
-	}
-
-	/**
-	 * 很容易的绑定一个本地服务。
-	 * 
-	 * @param <T>
-	 * @param serviceClass
-	 * @return
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Class<? extends Service> serviceClass) {
-		return mWrapperContext.bindService(serviceClass);
 	}
 
 	/**

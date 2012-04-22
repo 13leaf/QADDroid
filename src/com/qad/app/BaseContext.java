@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 
 import com.qad.util.ContextTool;
 
@@ -76,30 +75,6 @@ public class BaseContext {
 	public void startService(Class<? extends Service> serviceClass) {
 		me.startService(
 				getLocalIntent(serviceClass));
-	}
-	
-	/**
-	 * 以绑定方式启动service。通过返回的绑定连接实例可以进行通信<br>
-	 * 另请参照 @see {@link BindServiceConnection}
-	 * @param <T> IBinder强类型
-	 * @param intentService 目标服务
-	 * @return 绑定连接
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(Intent intentService) {
-		BindServiceConnection<T> conn=new BindServiceConnection<T>();
-		me.bindService(intentService, conn, Context.BIND_AUTO_CREATE);
-		return conn;
-	}
-	
-	/**
-	 * 很容易的绑定一个本地服务。
-	 * @param <T>
-	 * @param serviceClass
-	 * @return
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(Class<?extends Service> serviceClass) {
-		Intent intent=new Intent(me,serviceClass);
-		return bindService(intent);
 	}
 	
 	/**

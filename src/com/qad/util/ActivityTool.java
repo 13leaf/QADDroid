@@ -7,7 +7,6 @@ import java.util.List;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,9 +17,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.view.ViewStub;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -36,13 +35,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+/**
+ * 提供Activity的一些工具方法。
+ * @author 13leaf
+ *
+ */
 public class ActivityTool {
 	
 	private Activity mActivity;
 	
 	private ViewTool mViewTool=new ViewTool();
 	
-	private BroadcastTool broadcastTool;
 	
 	private DialogTool dialogTool;
 	
@@ -54,14 +57,23 @@ public class ActivityTool {
 		mActivity=activity;
 		
 		dialogTool=new DialogTool(activity);
-		
-		broadcastTool=new BroadcastTool(activity);
 	}
 	
-	public void registerSDCardListener(BroadcastReceiver receiver) {
-		broadcastTool.registerSDCardListener(receiver);
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
 	}
 	
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 	/**
 	 * 重新启动Activity,若是API5版本或者以上版本则将使用反射来关闭动画显示。<br>
 	 * 并不能保证一定能关闭动画
@@ -299,7 +311,7 @@ public class ActivityTool {
 		{
 			//create shortcut
 			ApplicationInfo appInfor=mActivity.getApplicationInfo();
-			Intent createIntent=IntentTool.getCreateShortCutIntent(
+			Intent createIntent=IntentFactory.getCreateShortCutIntent(
 					appInfor.loadLabel(mActivity.getPackageManager())+"", 
 					Intent.ShortcutIconResource.fromContext(mActivity, appInfor.icon),
 					new Intent(mActivity,startUpClass));
@@ -310,6 +322,14 @@ public class ActivityTool {
 			editor.putBoolean(shortCutKey,true);
 			editor.commit();
 		}
+	}
+	
+	/**
+	 * 发送关闭广播。关闭所有的活动，活动关闭完成之后将触发BaseApplication的onClose。
+	 */
+	public void closeApp()
+	{
+		mActivity.sendBroadcast(new Intent(CloseBroadCastReceiver.ACTION_EXIT));
 	}
 	
 	/**

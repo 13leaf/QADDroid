@@ -1,5 +1,6 @@
 package com.qad.app;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
@@ -9,12 +10,11 @@ import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.Handler;
 import android.util.AndroidRuntimeException;
 import android.util.SparseArray;
 import android.view.View;
@@ -49,6 +49,7 @@ import com.qad.inject.SystemServiceInjector;
 import com.qad.inject.ViewInjector;
 import com.qad.util.ActivityTool;
 import com.qad.util.ActivityTool.FinishListener;
+import com.qad.util.CloseBroadCastReceiver;
 
 /**
  * BaseActivity作为Activity的基类提供了许多方便的特性。继承BaseActivity替代Activity会让编程更加简单。<br>
@@ -79,16 +80,18 @@ import com.qad.util.ActivityTool.FinishListener;
  * @author 13leaf
  *
  */
-public class BaseActivity extends Activity implements ServiceConnection{
+public class BaseActivity extends Activity{
 
 	private BaseContext proxycContext;
 	
 	private ActivityTool tool;
 	
+	private LinkedList<BaseBroadcastReceiver> managedReceivers=new LinkedList<BaseBroadcastReceiver>();
+	
 	/**
 	 * 简易访问本活动实例的指针
 	 */
-	protected BaseActivity me;
+	protected Activity me;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,7 @@ public class BaseActivity extends Activity implements ServiceConnection{
 		me=this;
 		
 		//register broadcast
+		registerManagedReceiver(new CloseBroadCastReceiver(this));
 		
 		//do the inject
 		SystemServiceInjector.inject(this, this);
@@ -111,7 +115,10 @@ public class BaseActivity extends Activity implements ServiceConnection{
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
+		//remove broadcast
+		for(BaseBroadcastReceiver receiver:managedReceivers)
+			unregisterReceiver(receiver);
+		managedReceivers.clear();
 		ViewServer.get(this).removeWindow(this);//for debug
 	}
 	
@@ -176,6 +183,29 @@ public class BaseActivity extends Activity implements ServiceConnection{
 		progressDialog.setMessage(value);
 	}
 	
+	public void registerManagedReceiver(BaseBroadcastReceiver receiver)
+	{
+		if(receiver==null || managedReceivers.contains(receiver)) return;
+		managedReceivers.add(receiver);
+		registerReceiver(receiver, receiver.getIntentFilter());
+	}
+	
+	public void registerManagedReceiver(BaseBroadcastReceiver receiver,String broadcastPermission,Handler scheduler)
+	{
+		if(receiver==null || managedReceivers.contains(receiver)) return;
+		managedReceivers.add(receiver);
+		registerReceiver(receiver, receiver.getIntentFilter(), broadcastPermission, scheduler);
+	}
+	
+	//覆盖unregisterReceiver来确保管理状态
+	@Override
+	public void unregisterReceiver(BroadcastReceiver receiver) {
+		super.unregisterReceiver(receiver);
+		int index=managedReceivers.indexOf(receiver);
+		if(index!=-1)
+			managedReceivers.remove(index);
+	}
+	
 	/**
 	 * @param activityClass
 	 * @see practice.utils.app.BaseContext#startActivity(java.lang.Class)
@@ -190,28 +220,6 @@ public class BaseActivity extends Activity implements ServiceConnection{
 	 */
 	public void startService(Class<? extends Service> serviceClass) {
 		proxycContext.startService(serviceClass);
-	}
-
-	/**
-	 * @param <T>
-	 * @param intentService
-	 * @return
-	 * @see practice.utils.app.BaseContext#bindService(android.content.Intent)
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Intent intentService) {
-		return proxycContext.bindService(intentService);
-	}
-
-	/**
-	 * @param <T>
-	 * @param serviceClass
-	 * @return
-	 * @see practice.utils.app.BaseContext#bindService(java.lang.Class)
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Class<? extends Service> serviceClass) {
-		return proxycContext.bindService(serviceClass);
 	}
 
 	/**
@@ -589,19 +597,6 @@ public class BaseActivity extends Activity implements ServiceConnection{
 		tool.testLog(name);
 	}
 
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-		
-	}
-
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-	}
-
-	public void registerSDCardListener(BroadcastReceiver receiver) {
-		tool.registerSDCardListener(receiver);
-	}
-
 	public boolean isFullScreen() {
 		return tool.isFullScreen();
 	}
@@ -676,5 +671,13 @@ public class BaseActivity extends Activity implements ServiceConnection{
 
 	public void verboseLog(Object msg) {
 		proxycContext.verboseLog(msg);
+	}
+
+	public void restartActivity() {
+		tool.restartActivity();
+	}
+
+	public void unLockOrientation() {
+		tool.unLockOrientation();
 	}
 }

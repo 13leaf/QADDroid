@@ -1057,10 +1057,20 @@ public abstract class Files {
 	 * @return
 	 */
 	public static Bitmap fetchImage(String filePath) {
+		return fetchImage(filePath, 70);//default for 70*70
+	}
+	
+	/**
+	 * 从指定路径获取图片对象,第二个参数设置需求大小。
+	 * @param filePath
+	 * @param requiredSize 填写图片最小的宽/高,结果将按照等比例进行缩放
+	 * @return
+	 */
+	public static Bitmap fetchImage(String filePath,int requiredSize)
+	{
 		try {
-			return Bitmaps.decodeFile(new File(filePath));
-		} catch (OutOfMemoryError oom)// 谨慎对待oom
-		{
+			return Bitmaps.decodeFile(new File(filePath), requiredSize);
+		} catch (OutOfMemoryError oom) {
 			Log.e("FetchImage", oom.toString());
 			return null;
 		}

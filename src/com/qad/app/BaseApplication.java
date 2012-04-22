@@ -83,11 +83,10 @@ public class BaseApplication extends Application {
 	}
 
 	/**
-	 * 当程序的最后一个活动被销毁时触发。注意:若程序被杀死或者其他情况,那么该方法将不能正常工作。<br>
-	 * TODO 还没有想好具体的执行模型。这里仅提供一个建议接口
+	 * 当调用BaseActivity的closeApp后触发。所有活动均已关闭后将触发。
 	 */
 	public void onClose() {
-
+		
 	}
 
 	/**

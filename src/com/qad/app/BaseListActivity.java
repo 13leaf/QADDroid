@@ -1,5 +1,6 @@
 package com.qad.app;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
@@ -9,10 +10,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.Handler;
 import android.util.AndroidRuntimeException;
 import android.util.SparseArray;
 import android.view.View;
@@ -43,6 +45,7 @@ import com.qad.inject.SystemServiceInjector;
 import com.qad.inject.ViewInjector;
 import com.qad.util.ActivityTool;
 import com.qad.util.ActivityTool.FinishListener;
+import com.qad.util.CloseBroadCastReceiver;
 
 public class BaseListActivity extends ListActivity {
 
@@ -50,10 +53,12 @@ public class BaseListActivity extends ListActivity {
 	
 	private ActivityTool tool;
 	
+	private LinkedList<BaseBroadcastReceiver> managedReceivers=new LinkedList<BaseBroadcastReceiver>();
+	
 	/**
 	 * 简易访问本活动实例的指针
 	 */
-	protected BaseListActivity me;
+	protected Activity me;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,27 +67,33 @@ public class BaseListActivity extends ListActivity {
 		tool=new ActivityTool(this);
 		me=this;
 		
+		//register broadcast
+		registerManagedReceiver(new CloseBroadCastReceiver(this));
+		
 		//do the inject
 		SystemServiceInjector.inject(this, this);
 		ExtrasInjector.inject(getIntent().getExtras(), this);
 		ResourceInjector.inject(getApplicationContext(), this);
 		PreferenceInjector.inject(getApplicationContext(), this);
 		
-		ViewServer.get(this).addWindow(this);
+        ViewServer.get(this).addWindow(this);//for debug
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
-		ViewServer.get(this).removeWindow(this);
+		//remove broadcast
+		for(BaseBroadcastReceiver receiver:managedReceivers)
+			unregisterReceiver(receiver);
+		managedReceivers.clear();
+		ViewServer.get(this).removeWindow(this);//for debug
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
-		ViewServer.get(this).setFocusedWindow(this);
+		ViewServer.get(this).setFocusedWindow(this);//for debug
 	}
 	
 	@Override
@@ -90,7 +101,8 @@ public class BaseListActivity extends ListActivity {
 		super.onNewIntent(intent);
 		
 		//do the inject
-		ExtrasInjector.inject(getIntent().getExtras(), this);
+		if(intent!=null)
+			ExtrasInjector.inject(intent.getExtras(), this);
 	}
 	
 	@Override
@@ -137,7 +149,30 @@ public class BaseListActivity extends ListActivity {
 	public void setDefaultProgressMsg(String value){
 		progressDialog.setMessage(value);
 	}
-
+	
+	public void registerManagedReceiver(BaseBroadcastReceiver receiver)
+	{
+		if(receiver==null || managedReceivers.contains(receiver)) return;
+		managedReceivers.add(receiver);
+		registerReceiver(receiver, receiver.getIntentFilter());
+	}
+	
+	public void registerManagedReceiver(BaseBroadcastReceiver receiver,String broadcastPermission,Handler scheduler)
+	{
+		if(receiver==null || managedReceivers.contains(receiver)) return;
+		managedReceivers.add(receiver);
+		registerReceiver(receiver, receiver.getIntentFilter(), broadcastPermission, scheduler);
+	}
+	
+	//覆盖unregisterReceiver来确保管理状态
+	@Override
+	public void unregisterReceiver(BroadcastReceiver receiver) {
+		super.unregisterReceiver(receiver);
+		int index=managedReceivers.indexOf(receiver);
+		if(index!=-1)
+			managedReceivers.remove(index);
+	}
+	
 	/**
 	 * @param activityClass
 	 * @see practice.utils.app.BaseContext#startActivity(java.lang.Class)
@@ -152,28 +187,6 @@ public class BaseListActivity extends ListActivity {
 	 */
 	public void startService(Class<? extends Service> serviceClass) {
 		proxycContext.startService(serviceClass);
-	}
-
-	/**
-	 * @param <T>
-	 * @param intentService
-	 * @return
-	 * @see practice.utils.app.BaseContext#bindService(android.content.Intent)
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Intent intentService) {
-		return proxycContext.bindService(intentService);
-	}
-
-	/**
-	 * @param <T>
-	 * @param serviceClass
-	 * @return
-	 * @see practice.utils.app.BaseContext#bindService(java.lang.Class)
-	 */
-	public <T extends IBinder> BindServiceConnection<T> bindService(
-			Class<? extends Service> serviceClass) {
-		return proxycContext.bindService(serviceClass);
 	}
 
 	/**
@@ -334,7 +347,6 @@ public class BaseListActivity extends ListActivity {
 		return tool.findVSW(id);
 	}
 
-
 	/**
 	 * @param ids
 	 * @param l
@@ -481,30 +493,6 @@ public class BaseListActivity extends ListActivity {
 	}
 
 	/**
-	 * 
-	 * @see com.qad.util.ActivityTool#lockPortrait()
-	 */
-	public void lockPortrait() {
-		tool.lockPortrait();
-	}
-
-	/**
-	 * 
-	 * @see com.qad.util.ActivityTool#lockLandscape()
-	 */
-	public void lockLandscape() {
-		tool.lockLandscape();
-	}
-
-	/**
-	 * @param name
-	 * @see com.qad.util.ActivityTool#testLog(java.lang.String)
-	 */
-	public void testLog(String name) {
-		tool.testLog(name);
-	}
-
-	/**
 	 * @param dialog
 	 * @see com.qad.util.ActivityTool#safeShowDialog(android.app.Dialog)
 	 */
@@ -552,16 +540,36 @@ public class BaseListActivity extends ListActivity {
 		tool.wakeLock();
 	}
 
-	public void infoLog(Object msg) {
-		proxycContext.infoLog(msg);
+	/**
+	 * 
+	 * @see com.qad.util.ActivityTool#lockPortrait()
+	 */
+	public void lockPortrait() {
+		tool.lockPortrait();
 	}
 
-	public void warnLog(Object msg) {
-		proxycContext.warnLog(msg);
+	/**
+	 * 
+	 * @see com.qad.util.ActivityTool#lockLandscape()
+	 */
+	public void lockLandscape() {
+		tool.lockLandscape();
 	}
 
-	public void verboseLog(Object msg) {
-		proxycContext.verboseLog(msg);
+	/**
+	 * @param name
+	 * @see com.qad.util.ActivityTool#testLog(java.lang.String)
+	 */
+	public void testLog(String name) {
+		tool.testLog(name);
+	}
+
+	public boolean isFullScreen() {
+		return tool.isFullScreen();
+	}
+
+	public void toggleFullScreen() {
+		tool.toggleFullScreen();
 	}
 	
 	private SparseArray<Notification> mManagedNotifications;
@@ -618,5 +626,25 @@ public class BaseListActivity extends ListActivity {
 		if (notificationManager == null) {
 			notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		}
+	}
+
+	public void infoLog(Object msg) {
+		proxycContext.infoLog(msg);
+	}
+
+	public void warnLog(Object msg) {
+		proxycContext.warnLog(msg);
+	}
+
+	public void verboseLog(Object msg) {
+		proxycContext.verboseLog(msg);
+	}
+
+	public void restartActivity() {
+		tool.restartActivity();
+	}
+
+	public void unLockOrientation() {
+		tool.unLockOrientation();
 	}
 }

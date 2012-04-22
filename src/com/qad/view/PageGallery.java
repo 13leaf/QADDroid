@@ -9,7 +9,6 @@ import android.widget.Gallery;
 /**
  * 实现了一页一页平滑翻动(不带flying)的画廊。<br>
  * 重写了onFling导致的Gallery翻页过快问题。
- * FIXME 滑动过程中有卡壳的现象
  * @author 13leaf
  * 
  */

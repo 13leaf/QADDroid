@@ -3,6 +3,7 @@ package com.qad.app;
 import android.app.Application;
 import android.preference.PreferenceManager;
 
+import com.qad.net.ApnManager;
 import com.qad.system.PhoneManager;
 import com.qad.util.ContextTool;
 
@@ -20,7 +21,9 @@ public class BaseApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		mContextTool = new ContextTool(this);
-		PhoneManager.getInstance(this);//init PhoneManager
+		PhoneManager phoneManager=PhoneManager.getInstance(this);//init PhoneManager
+		ApnManager apnManager=ApnManager.getInstance(this);
+		phoneManager.addOnNetWorkChangeListioner(apnManager);
 	}
 
 	

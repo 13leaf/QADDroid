@@ -53,7 +53,7 @@ public class Downloader {
 		BufferedInputStream is=null;
 		
 		try {
-			HttpResponse response = HttpUtils.executeGet(url);
+			HttpResponse response = HttpManager.executeHttpGet(url);
 			
 			is=new BufferedInputStream(response.getEntity().getContent(), blockSize);
 			if(resume){

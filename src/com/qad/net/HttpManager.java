@@ -13,7 +13,10 @@ import java.net.URL;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -51,7 +54,7 @@ public class HttpManager {
 	}
 
 	/**
-	 * 返回Http应答
+	 * 返回Http应答,若不是200,则将抛出异常
 	 * 
 	 * @param url
 	 * @return
@@ -59,7 +62,30 @@ public class HttpManager {
 	 */
 	public static HttpResponse executeHttpGet(String url) throws IOException {
 		DefaultHttpClient httpclient = getHttpClient();
-		return httpclient.execute(new HttpGet(url));
+		HttpResponse response = httpclient.execute(new HttpGet(url));
+		validResponse(response);
+		return response;
+	}
+
+	private static HttpResponse validResponse(HttpResponse response) throws IOException,ClientProtocolException {
+		if(response.getStatusLine().getStatusCode()!=HttpStatus.SC_OK)
+		{
+			throw new IOException("response Code:"+response.getStatusLine().getStatusCode());
+		}
+		return response;
+	}
+	
+	/**
+	 * 返回Http应答,若不是200,则将抛出异常
+	 * @param post
+	 * @return
+	 * @throws IOException
+	 */
+	public static HttpResponse executeHttpPost(HttpPost post) throws IOException{
+		DefaultHttpClient httpClient=getHttpClient();
+		HttpResponse response=httpClient.execute(post);
+		validResponse(response);
+		return response;
 	}
 
 	public static DefaultHttpClient getHttpClient() {

@@ -21,7 +21,8 @@ import com.qad.form.PageManager.PageLoadListener;
  * 若想让PageListView提供了两种翻页形式。AUTO_MODE表示当页滑动到页低部时自动翻页。MANUAL_MODE表示当页滑动到页<br>
  * 底端时。显示一个按钮给用户进行手动翻页。当翻页加载时，列表底部显示一个滚动等待的信息。当加载失败的时候，会<br>
  * 显示一个Toast的提示信息。显示的这些信息可以通过设置loadButton,loadingMsg,loadError来灵活订制。<br>
- * 注:在xml中需要申明:mode="auto|manual",另外可设置的属性有loadingMsg,loadingErrorMsg,loadButtonText.使用PageListView时务必需要通过bindPageManager来完成绑定。
+ * 注:在xml中需要申明:mode="auto|manual",另外可设置的属性有loadingMsg,loadingErrorMsg,loadButtonText.<br>
+ * 使用PageListView时务必需要通过bindPageManager来完成绑定。
  * @author 13leaf
  *
  */
@@ -36,9 +37,9 @@ public  class PageListView extends ListView {
 	 * */
 	protected ViewSwitcher loadSwitcher;
 	
-	protected  TextView txtLoading;
+	protected  View loadingView;
 	
-	protected Button btnLoad;
+	protected View loadView;
 	
 	private boolean showFlag=true;//ViewSwitcher的标志位，true表示显示加载中,false表示显示加载按钮.
 	
@@ -52,17 +53,17 @@ public  class PageListView extends ListView {
 	/**
 	 * 手动载入的Button内容
 	 */
-	public String loadButton="查看更多内容";
+	private String loadButton="查看更多";
 	
 	/**
 	 * 载入尾部显示信息
 	 */
-	public String loadingMsg="正在载入,请稍后...";
+	private String loadingMsg="正在载入,请稍后...";
 	
 	/**
 	 * 加载失败的提示信息
 	 */
-	public String loadErrorMsg="加载失败,请重试...";
+	private String loadErrorMsg="加载失败,请重试...";
 	
 	/**
 	 * 自动翻页，当列表滚动到最后的时候触发翻页事件。
@@ -85,6 +86,30 @@ public  class PageListView extends ListView {
 		void addPage(PageContent pageContent);
 	}
 	
+	/**
+	 * 完整的构造器版
+	 * @param context
+	 * @param pageManager
+	 * @param flag
+	 * @param loadButton
+	 * @param loadingMsg
+	 * @param loadErrorMsg
+	 */
+	public PageListView(Context context,PageManager<?> pageManager,int flag,String loadButton,String loadingMsg,String loadErrorMsg){
+		super(context);
+		
+		mPageManager=pageManager;
+		//FIXED v2恢复原先在构造函数中初始化footer的规则，子类应手动调用loadSwitcher来自行控制
+		initLoadFooter();
+		addFooterView(loadSwitcher);
+		//FIXED v1设置triggerMode应当提前
+		setTriggerMode(flag);
+		if(pageManager!=null)
+			bindPageManager(mPageManager);
+		this.loadButton=loadButton;
+		this.loadingMsg=loadingMsg;
+		this.loadErrorMsg=loadErrorMsg;
+	}
 	/**
 	 * 可通过bindPageManager进行延迟绑定
 	 * @param context
@@ -157,7 +182,7 @@ public  class PageListView extends ListView {
 		mPageManager=pageManager;
 		mPageManager.addOnPageLoadListioner(new ListPageLoad());
 		//
-		mPageManager.bindNext(btnLoad);
+		mPageManager.bindNext(loadView);
 		//
 		if(mFlag==AUTO_MODE)
 		{
@@ -210,9 +235,9 @@ public  class PageListView extends ListView {
 	{
 		loadSwitcher=new ViewSwitcher(getContext());
 		//
-		loadSwitcher.addView(initLoadingView());
+		loadSwitcher.addView(loadingView=initLoadingView());
 		
-		loadSwitcher.addView(initLoadView());
+		loadSwitcher.addView(loadView=initLoadView());
 	}
 	
 	
@@ -226,12 +251,13 @@ public  class PageListView extends ListView {
 		ProgressBar progressBar=new ProgressBar(getContext());
 		progressBar.setIndeterminate(true);
 		loadingLayout.addView(progressBar);
-		txtLoading=new TextView(getContext());
-		txtLoading.setGravity(Gravity.CENTER);
-		txtLoading.setSingleLine(true);
-		txtLoading.setTextSize(17);
-		txtLoading.setPadding(12, 0, 0, 0);
-		loadingLayout.addView(txtLoading);
+		TextView textView=new TextView(getContext());
+		textView.setGravity(Gravity.CENTER);
+		textView.setSingleLine(true);
+		textView.setTextSize(17);
+		textView.setPadding(12, 0, 0, 0);
+		textView.setText(loadingMsg);
+		loadingLayout.addView(textView);
 		return loadingLayout;
 	}
 	/**
@@ -239,10 +265,11 @@ public  class PageListView extends ListView {
 	 * @return
 	 */
 	protected View initLoadView(){
-		btnLoad=new Button(getContext());
-		btnLoad.setGravity(Gravity.CENTER);
-		btnLoad.setTextSize(17);
-		return btnLoad;
+		Button button=new Button(getContext());
+		button.setGravity(Gravity.CENTER);
+		button.setTextSize(17);
+		button.setText(loadButton);
+		return button;
 	}
 	
 	/**
@@ -261,9 +288,8 @@ public  class PageListView extends ListView {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
-			if(firstVisibleItem==0 || loadFail) return;
-			
-			if(firstVisibleItem+visibleItemCount==totalItemCount)//翻页到底部
+			if(loadFail) return;
+			if(firstVisibleItem+visibleItemCount==totalItemCount || view.getChildAt(visibleItemCount)==loadSwitcher)//翻页到底部
 			{
 				mPageManager.next();//触发翻页
 			}
@@ -340,8 +366,7 @@ public  class PageListView extends ListView {
 	
 	private void showLoadingFooter()
 	{
-		txtLoading.setText(loadingMsg);
-		btnLoad.setVisibility(INVISIBLE);
+		loadView.setVisibility(INVISIBLE);
 		if(!showFlag)
 		{
 			loadSwitcher.showPrevious();
@@ -351,8 +376,7 @@ public  class PageListView extends ListView {
 	
 	private void showLoadedFooter()
 	{
-		btnLoad.setText(loadButton);
-		btnLoad.setVisibility(VISIBLE);
+		loadView.setVisibility(VISIBLE);
 		if(showFlag)
 		{
 			loadSwitcher.showNext();

@@ -12,7 +12,6 @@ import android.net.Uri;
 /**
  * 调用init初始化。
  * 之后可以通过访问proxy_server和proxy_port来设置代理
- * TODO 亟待重构,做更好的封装
  * @author 13leaf
  *
  */
@@ -36,12 +35,14 @@ public class ApnManager implements NetworkListioner{
 
 		String CTWAP = "ctwap";
 	}
-
-	public static boolean useProxy = false;
+	
 	public final static String CMWAP_SERVER = "10.0.0.172";
 	public final static String CTWAP_SERVER = "10.0.0.200";
-	public static String proxy_server = CMWAP_SERVER;
-	public final static int proxy_port = 80;
+
+	static boolean useProxy = false;
+	static String proxy_server = CMWAP_SERVER;
+	static int proxy_port = 80;
+	static String proxy_name=""; 
 	
 	private static ApnManager instance;
 	WeakReference<Context> refContext;
@@ -58,8 +59,25 @@ public class ApnManager implements NetworkListioner{
 		init(context);
 		refContext=new WeakReference<Context>(context);
 	}
+	
+	public void init(Context context)
+	{
+		proxy_name=_init(context);
+	}
+	
+	public static String getProxy_name() {
+		return proxy_name;
+	}
+	
+	public static int getProxy_port() {
+		return proxy_port;
+	}
+	
+	public static String getProxy_server() {
+		return proxy_server;
+	}
 
-	public String init(Context ctx) {
+	private String _init(Context ctx) {
 		Uri PREFERRED_APN_URI = Uri
 				.parse("content://telephony/carriers/preferapn");
 		Cursor cursor = ctx.getContentResolver().query(PREFERRED_APN_URI,

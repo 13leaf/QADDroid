@@ -32,12 +32,14 @@ public class ExecutorLoader<Param, Target, Result> extends
 		BaseLoadService<Param, Result> service;
 		LoadContext<Param, Target, Result> context;
 		Handler mainHandler;
+		ExecutorLoader<Param, Target, Result> loader;
 
 		public LoadWorker(BaseLoadService<Param, Result> service,
-				LoadContext<Param, Target, Result> context, Handler mainHandler) {
+				LoadContext<Param, Target, Result> context, Handler mainHandler,ExecutorLoader<Param, Target, Result> loader) {
 			this.service = service;
 			this.context = context;
 			this.mainHandler = mainHandler;
+			this.loader=loader;
 		}
 
 		@Override
@@ -46,9 +48,10 @@ public class ExecutorLoader<Param, Target, Result> extends
 			Result result = service.load(context.param);
 			if (result != null)
 				context.result = result;
-			Message message = Message.obtain(mainHandler);
+			Message message = new Message();
 			message.obj = context;
-			message.sendToTarget();
+			loader.sendToMainThread(message);
+			loader=null;//do not need use any more
 			return result;
 		}
 	}
@@ -81,7 +84,7 @@ public class ExecutorLoader<Param, Target, Result> extends
 		 */
 		tasks.put(context, mExecutorService
 				.submit(new LoadWorker<Param, Target, Result>(loadService,
-						context, mainHandler)));
+						context, mainHandler,this)));
 		return true;
 	}
 

@@ -3,6 +3,7 @@ package com.qad.util;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.AndroidRuntimeException;
@@ -61,6 +62,9 @@ public class NotificationBuilder {
 		
 		Notification apply(Notification notification)
 		{
+			if(contentTitle==null) contentTitle=tickerText;
+			if(contentIntent==null) contentIntent=PendingIntent.getActivity(mContext, 0, new Intent(),   // add this pass null to intent
+                    PendingIntent.FLAG_UPDATE_CURRENT);
 			//FIXED V1 修正了自定义RemoteView时产生的错误。
 			if(customContentViews==null && (tickerText==null || contentTitle==null || contentIntent==null))//normal mode,must have all this attribute 
 					{

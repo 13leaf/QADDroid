@@ -1,12 +1,7 @@
 package com.qad.lang;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.charset.Charset;
-
-import com.qad.lang.util.FileCharsetDetector;
 
 public final class Encoding {
 
@@ -28,10 +23,6 @@ public final class Encoding {
 	 */
 	private static int cacheIndex=0;
 	
-	/**
-	 * 检查文件编码
-	 */
-	private static FileCharsetDetector detector=new FileCharsetDetector();
 	
 	public static String defaultEncoding(){
 		return Charset.defaultCharset().name();
@@ -63,49 +54,6 @@ public final class Encoding {
 		}else {
 			return cacheCharsets[cacheIndex-1];
 		}
-	}
-	
-	/**
-	 * 探测File的Encode
-	 * @param file
-	 * @param hint 详情见Encoding的静态字段
-	 * @return
-	 * @throws FileNotFoundException 
-	 */
-	public static Charset detectCharset(File file,int hint) throws FileNotFoundException
-	{
-		return detectCharset(file.getAbsolutePath(), hint);
-	}
-	
-	/**
-	 * 默认使用Chinese的语言环境来
-	 * @param file
-	 * @return
-	 * @throws FileNotFoundException 
-	 */
-	public static Charset detectCharset(File file) throws FileNotFoundException
-	{
-		return detectCharset(file,HINT_CHINESE);
-	}
-	
-	/**
-	 * 返回指定路径的文件编码格式
-	 * @param path
-	 * @param hint
-	 * @return
-	 * @throws FileNotFoundException
-	 */
-	public static Charset detectCharset(String path,int hint) throws FileNotFoundException {
-		try {
-			return 
-					getCacheCharset(detector.guestFileEncoding(path, hint));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw e;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
 	public static final int HINT_JAPANESE=1;

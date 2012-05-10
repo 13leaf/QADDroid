@@ -123,7 +123,7 @@ public class BeanLoader<Target> extends ExecutorLoader<String, Target , Object> 
 		tasks.put(context, mExecutorService
 				.submit(new LoadWorker<String, Target, Object>(
 						(BaseLoadService<String, Object>) beanLoadService,
-						context, mainHandler)));
+						context, mainHandler,this)));
 		return true;
 	}
 

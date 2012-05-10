@@ -98,9 +98,9 @@ public class QueueLoader<Param, Target, Result> extends
 			@SuppressWarnings("unchecked")
 			LoadContext<Param, Target, Result> context = (LoadContext<Param, Target, Result>) msg.obj;
 			context.result = loadService.load(context.param);
-			Message message = Message.obtain(mainHandler);
+			Message message = new Message();
 			message.obj = context;
-			message.sendToTarget();
+			sendToMainThread(message);
 			return true;// will not send message to Handler
 		}
 	};

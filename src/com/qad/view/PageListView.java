@@ -53,17 +53,17 @@ public  class PageListView extends ListView {
 	/**
 	 * 手动载入的Button内容
 	 */
-	private String loadButton="查看更多";
+	protected String loadButton="查看更多";
 	
 	/**
 	 * 载入尾部显示信息
 	 */
-	private String loadingMsg="正在载入,请稍后...";
+	protected String loadingMsg="正在载入,请稍后...";
 	
 	/**
 	 * 加载失败的提示信息
 	 */
-	private String loadErrorMsg="加载失败,请重试...";
+	protected String loadErrorMsg="加载失败,请重试...";
 	
 	/**
 	 * 自动翻页，当列表滚动到最后的时候触发翻页事件。

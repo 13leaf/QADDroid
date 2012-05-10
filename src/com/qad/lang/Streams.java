@@ -382,29 +382,6 @@ public abstract class Streams {
 	}
 	
 	/**
-	 * 根据一个文件路径建立一个 UTF-8文本输入流。开启auto可以避免中文环境下的GBK,GB2312乱码问题。但是会影响效率
-	 *	@author 13leaf
-	 * @param path
-	 *            文件路径
-	 * @param auto
-	 * 			  自动检测中文环境编码
-	 * @return 文本输入流
-	 */
-	public static Reader fileInr(String path,boolean auto) {
-		if(auto){
-			try {
-				return new InputStreamReader(fileIn(path),Encoding.detectCharset(path,Encoding.HINT_CHINESE));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-		else{
-			return new InputStreamReader(fileIn(path), Encoding.CHARSET_UTF8);
-		}
-	}
-	
-	/**
 	 * 根据一个文件路径建立一个指定编码格式的输入流
 	 * @author 13leaf
 	 * @param path

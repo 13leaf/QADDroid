@@ -41,13 +41,19 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 			throw new IllegalArgumentException(
 					"invalidate LoadKey!Check validateLoadContext First!"
 							+ loadKey);
-		File cacheTarget = getCacheFile(loadKey);
-		if (!cacheTarget.exists()) {
-			logger.warnLog("not found cache file:"
-					+ cacheTarget.getAbsolutePath());
+		try {
+			File cacheTarget = getCacheFile(loadKey);
+			if (!cacheTarget.exists()) {
+				logger.warnLog("not found cache file:"
+						+ cacheTarget.getAbsolutePath());
+				return null;
+			}
+			return Files.fetchImage(cacheTarget.getAbsolutePath(),requiredSize);
+		} catch (Exception e) {
+			logger.errorLog("load Bitmap fail:"+loadKey);
+			e.printStackTrace();
 			return null;
 		}
-		return Files.fetchImage(cacheTarget.getAbsolutePath(),requiredSize);
 	}
 	
 	@Override
@@ -57,9 +63,14 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 					"invalidate LoadKey!Check validateLoadContext First!"
 							+ loadKey);
 		if(instance==null) return false;
-		File cacheTarget=getCacheFile(loadKey);
-		Files.writeCompressedImage(cacheTarget, (Bitmap) instance);
-		logger.debugLog("save "+loadKey+" compress Image!");
+		try {
+			File cacheTarget=getCacheFile(loadKey);
+			Files.writeCompressedImage(cacheTarget, (Bitmap) instance);
+			logger.debugLog("save "+loadKey+" compress Image!");
+		} catch (Exception e) {
+			logger.errorLog("Save Bitmap fail:"+loadKey);
+			e.printStackTrace();
+		}
 		return true;
 	}
 

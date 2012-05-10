@@ -1026,12 +1026,8 @@ public abstract class Files {
 	 * @param filePath
 	 * @param bmp
 	 */
-	public static void writeCompressedImage(String filePath, Bitmap bmp) {
-		try {
-			Files.createFileIfNoExists(filePath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public static void writeCompressedImage(String filePath, Bitmap bmp) throws IOException{
+		Files.createFileIfNoExists(filePath);
 		// 确保图片处于可写状态,一旦Bitmap被标记为回收。那么它就失去了draw的本领。其像素矩阵也被native释放
 		if (!bmp.isRecycled()) {
 			// 压缩存储Bitmap对象,使用100%质量的精度完成存储
@@ -1046,7 +1042,7 @@ public abstract class Files {
 	 * @param filePath
 	 * @param bmp
 	 */
-	public static void writeCompressedImage(File file, Bitmap bmp) {
+	public static void writeCompressedImage(File file, Bitmap bmp) throws IOException{
 		writeCompressedImage(file.getAbsolutePath(), bmp);
 	}
 

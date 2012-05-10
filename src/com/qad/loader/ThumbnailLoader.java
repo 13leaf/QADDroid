@@ -14,62 +14,12 @@ import com.qad.loader.service.MixedCacheService;
  */
 public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 		implements LoadListener {
-
-	private ImageDisplayer displayer;
-	private MixedCacheService<Bitmap> cacheService=new MixedCacheService<Bitmap>(50);
-
-	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
-			Drawable defaultRes) {
-		super(loadService);
-		displayer = new DefaultImageDisplayer(defaultRes);
-		addListener(this);
-	}
-
-	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
-			ImageDisplayer displayer, int flag) {
-		super(loadService, flag);
-		this.displayer = displayer;
-		addListener(this);
-	}
-
-	// FIXME rewrite here cause not thread safe
-	public void setImageDisplayer(ImageDisplayer displayer) {
-		this.displayer = displayer;
-	}
-
-	public ImageDisplayer getImageDisplayer() {
-		return displayer;
-	}
-
-	@Override
-	protected boolean validateTarget(
-			LoadContext<String, ImageView, Bitmap> context) {
-		return context.param.equals(context.target.getTag());
-	}
-
-	@Override
-	protected boolean onLoading(LoadContext<String, ImageView, Bitmap> context) {
-		Bitmap cacheBitmap=cacheService.load(context.param);
-		if(cacheBitmap!=null){
-			displayer.display(context.target, cacheBitmap);
-			return true;
-		}
-		displayer.prepare(context.target);
-		context.target.setTag(context.param);
-		return super.onLoading(context);
-	}
-
-	@Override
-	public void loadComplete(LoadContext<?, ?, ?> context) {
-		displayer.display((ImageView) context.target, (Bitmap) context.result);
-		cacheService.saveCache((String)context.param, (Bitmap)context.result);
-	}
-
-	@Override
-	public void loadFail(LoadContext<?, ?, ?> context) {
-		displayer.display((ImageView) context.target, null);
-	}
-
+	
+	/**
+	 * 回调处理预加载、加载完毕如何显示
+	 * @author 13leaf
+	 *
+	 */
 	public interface ImageDisplayer {
 		/**
 		 * 通知预备
@@ -86,7 +36,100 @@ public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 		 */
 		void display(ImageView img, Bitmap bmp);
 	}
+	
+	private static class Pack
+	{
+		ImageDisplayer mDisplayer;
+		String param;
+		public Pack(ImageDisplayer mDisplayer, String param) {
+			this.mDisplayer = mDisplayer;
+			this.param = param;
+		}
+	}
 
+	private ImageDisplayer defaultDisplayer;
+	private MixedCacheService<Bitmap> cacheService=new MixedCacheService<Bitmap>(50);
+
+	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
+			Drawable defaultRes) {
+		super(loadService);
+		defaultDisplayer = new DefaultImageDisplayer(defaultRes);
+		addListener(this);
+	}
+
+	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
+			ImageDisplayer displayer, int flag) {
+		super(loadService, flag);
+		this.defaultDisplayer = displayer;
+		addListener(this);
+	}
+	
+	/**
+	 * 使用自定义的显示策略来进行加载
+	 * @param context
+	 * @param mDisplayer
+	 */
+	public final void startLoading(LoadContext<String, ImageView, Bitmap> context,ImageDisplayer mDisplayer) {
+		if(context!=null && context.target!=null)//inject displayer
+		{
+			context.target.setTag(new Pack(mDisplayer==null?mDisplayer:defaultDisplayer, context.param));
+		}
+		startLoading(context);
+	}
+
+	public void setDefaultImageDisplayer(ImageDisplayer displayer) {
+		if(displayer==null) throw new NullPointerException();
+		this.defaultDisplayer = displayer;
+	}
+
+	public ImageDisplayer getDefaultImageDisplayer() {
+		return defaultDisplayer;
+	}
+
+	@Override
+	protected boolean validateTarget(
+			LoadContext<String, ImageView, Bitmap> context) {
+		return context.param.equals(((Pack)context.target.getTag()).param);
+	}
+
+	@Override
+	protected boolean onLoading(LoadContext<String, ImageView, Bitmap> context) {
+		Bitmap cacheBitmap=cacheService.load(context.param);
+		ImageDisplayer displayer=getMyDisplayer((Pack) context.target.getTag());
+		if(cacheBitmap!=null){
+			displayer.display(context.target, cacheBitmap);
+			return true;
+		}
+		displayer.prepare(context.target);
+		context.target.setTag(new Pack(displayer, context.param));
+		return super.onLoading(context);
+	}
+
+	private ImageDisplayer getMyDisplayer(Pack pack) {
+		if(pack!=null && pack.mDisplayer!=null)
+			return pack.mDisplayer;
+		else
+			return defaultDisplayer;
+	}
+
+	@Override
+	public void loadComplete(LoadContext<?, ?, ?> context) {
+		ImageView target=(ImageView) context.target;
+		Pack mPack=(Pack) target.getTag();
+		mPack.mDisplayer.display(target, (Bitmap) context.result);
+		cacheService.saveCache((String)context.param, (Bitmap)context.result);
+	}
+
+	@Override
+	public void loadFail(LoadContext<?, ?, ?> context) {
+		defaultDisplayer.display((ImageView) context.target, null);
+	}
+
+	/**
+	 * 未加载或加载失败显示默认图片
+	 * @author 13leaf
+	 *
+	 */
 	public static class DefaultImageDisplayer implements
 			ThumbnailLoader.ImageDisplayer {
 		private final Drawable defaultDrawable;
@@ -109,6 +152,11 @@ public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 		}
 	}
 
+	/**
+	 * 未加载或加载失败不显示任何图片
+	 * @author 13leaf
+	 *
+	 */
 	public static class DisplayShow implements ThumbnailLoader.ImageDisplayer {
 
 		@Override

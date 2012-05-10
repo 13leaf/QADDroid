@@ -5,14 +5,16 @@ import java.util.HashSet;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 
 import com.qad.loader.service.BaseLoadService;
 import com.qad.util.WLog;
 
 /**
  * 所有的Loader方法应当都在同一线程调用
+ * 
  * @author 13leaf
- *
+ * 
  * @param <Param>
  * @param <Target>
  * @param <Result>
@@ -26,17 +28,17 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	 * 若设置了该Flag,则会过滤掉请求,当它们传入的参数和目标与发出的执行任务都一样时。
 	 */
 	public static final int FLAG_FILTER_DUPLICATE = 0x0001;
-	
+
 	/**
 	 * 若设置了该Flag,则不会过滤请求。但会终止排队任务，并将最新任务重排到最前
 	 */
-	public static final int FLAG_ADD_OR_RESORT=0x0002;
+	public static final int FLAG_ADD_OR_RESORT = 0x0002;
 
 	/**
 	 * 最后提交的任务总是优先执行
 	 */
 	public static final int FLAG_LIFO = 0x0010;
-	
+
 	/**
 	 * 最先提交的任务总是最先执行
 	 */
@@ -51,6 +53,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	protected final BaseLoadService<Param, Result> loadService;
 
 	protected final static int MSG_DONE = 0;
+
+	protected Object lock = new Object();
 
 	/**
 	 * 异步线程通过调用mainHandler来向主线程通知done
@@ -112,7 +116,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			throw new IllegalArgumentException(
 					"Can not be set both flag FLAG_FIFO and FLAG_LIFO");
 		}
-		if((flag & (FLAG_FILTER_DUPLICATE|FLAG_ADD_OR_RESORT))==(FLAG_ADD_OR_RESORT|FLAG_FILTER_DUPLICATE)){
+		if ((flag & (FLAG_FILTER_DUPLICATE | FLAG_ADD_OR_RESORT)) == (FLAG_ADD_OR_RESORT | FLAG_FILTER_DUPLICATE)) {
 			throw new IllegalArgumentException(
 					"Can not be set both flag FLAG_FILTER_DUPLICATE and FLAG_ADD_OR_RESORT");
 		}
@@ -123,7 +127,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		this.loadService = loadService;
 		this.flag = flag;
 	}
-	
+
 	public BaseLoadService<Param, Result> getLoadService() {
 		return loadService;
 	}
@@ -142,18 +146,19 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			} else {
 				submitedTask.add(context);
 			}
-		}else if((flag&FLAG_ADD_OR_RESORT)==FLAG_ADD_OR_RESORT){
+		} else if ((flag & FLAG_ADD_OR_RESORT) == FLAG_ADD_OR_RESORT) {
 			cancelLoading(context);
 			submitedTask.add(context);
 		}
-		if(state==State.PAUSING)
+		if (state == State.PAUSING)
 			return;
 		if (onLoading(context))
 			state = State.RUNNING;
 	}
-	
+
 	@Override
-	public final boolean cancelLoading(LoadContext<Param, Target, Result> context) {
+	public final boolean cancelLoading(
+			LoadContext<Param, Target, Result> context) {
 		if (state == State.DESTROYED)
 			throw new IllegalStateException("Loader destroyed!");
 		submitedTask.remove(context);
@@ -162,15 +167,29 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 
 	@Override
 	public final void destroy(boolean now) {
-		state = State.DESTROYED;
-		onDestroy(now);// let subClass destroy first
+		synchronized (lock) {
+			state = State.DESTROYED;
+			onDestroy(now);// let subClass destroy first
 
-		// remove all pending messages
-		shutdownMainHandler();
-		submitedTask.clear();
-		submitedTask = null;
+			// remove all pending messages
+			shutdownMainHandler();
+			submitedTask.clear();
+			submitedTask = null;
+		}
 	}
 	
+	/**
+	 * 从异步线程向UI线程发送消息
+	 * @param message
+	 */
+	protected void sendToMainThread(Message message)
+	{
+		synchronized (lock) {
+			message.setTarget(mainHandler);
+			message.sendToTarget();
+		}
+	}
+
 	/**
 	 * 移除mainHandler所有处理的消息,释放mainHandler
 	 */
@@ -212,6 +231,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 
 	/**
 	 * 若验证载入结果无用，执行忽略。若任务还在队列，则移除任务。
+	 * 
 	 * @param context
 	 */
 	private final void abandon(LoadContext<Param, Target, Result> context) {
@@ -254,24 +274,24 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			abandon(context);
 			notifyListeners(context, false);
 		} else {
-			notifyListeners(context,true);
+			notifyListeners(context, true);
 		}
 	}
 
 	/**
 	 * 子类可以重写此处来拦截成功广播
+	 * 
 	 * @param context
 	 */
-	protected void notifyListeners(LoadContext<Param, Target, Result> context,boolean success) {
-		for (LoadListener listener : listeners)
-		{
-			if(success)
+	protected void notifyListeners(LoadContext<Param, Target, Result> context,
+			boolean success) {
+		for (LoadListener listener : listeners) {
+			if (success)
 				listener.loadComplete(context);
 			else
 				listener.loadFail(context);
 		}
 	}
-	
 
 	/**
 	 * 验证返回结果是否正确。子类重写此处来验证是否出现了脏数据,默认实现是检查Result非空。返回false将阻止给LoadListener回调通知
@@ -311,14 +331,16 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	 */
 	protected abstract boolean onLoading(
 			LoadContext<Param, Target, Result> context);
-	
+
 	/**
 	 * 返回是否取消成功
+	 * 
 	 * @param context
 	 * @return
 	 */
-	protected abstract boolean onCancelLoading(LoadContext<Param, Target, Result> context);
-	
+	protected abstract boolean onCancelLoading(
+			LoadContext<Param, Target, Result> context);
+
 	protected abstract void onPause();
 
 	protected abstract void onResume();

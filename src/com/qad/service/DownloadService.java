@@ -39,7 +39,7 @@ public class DownloadService extends BaseIntentService implements
 	@InjectExtras(name = EXTRA_TARGET_PATH)
 	protected String currentDownTarget;
 
-	private Intent currentIntent;
+	protected Intent currentIntent;
 	private int currentProgress;
 
 	@Override

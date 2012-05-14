@@ -99,6 +99,15 @@ public class BasePreferenceActivity extends PreferenceActivity{
 		super.onResume();
 		
 		ViewServer.get(this).setFocusedWindow(this);//for debug
+		if(getApplication() instanceof BaseApplication)
+			((BaseApplication)getApplication()).setTopActivity(this);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if(getApplication() instanceof BaseApplication)
+			((BaseApplication)getApplication()).setTopActivity(null);
 	}
 	
 	@Override

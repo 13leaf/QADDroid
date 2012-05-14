@@ -33,7 +33,7 @@ import com.qad.lang.Streams;
  * 5.增加策略(如重试,http级别的缓存) 
  * 6.透明化代理 *
  * 7.透明化压缩/反压缩
- * 
+ * TODO 避免使用静态函数,让Http层可测试化
  * @author 13leaf
  * 
  */

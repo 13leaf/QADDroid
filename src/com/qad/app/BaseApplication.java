@@ -1,5 +1,8 @@
 package com.qad.app;
 
+import java.lang.ref.WeakReference;
+
+import android.app.Activity;
 import android.app.Application;
 import android.preference.PreferenceManager;
 
@@ -13,9 +16,10 @@ import com.qad.util.ContextTool;
  * @author 13leaf
  * 
  */
-public class BaseApplication extends Application {
+public class BaseApplication extends Application implements AppManager{
 
 	private ContextTool mContextTool;
+	private WeakReference<Activity> topActivity;
 	
 	@Override
 	public void onCreate() {
@@ -110,5 +114,14 @@ public class BaseApplication extends Application {
 
 	public void verboseLog(Object msg) {
 		mContextTool.verboseLog(msg);
+	}
+
+	public void setTopActivity(Activity instantce) {
+		this.topActivity=new WeakReference<Activity>(instantce);
+	}
+
+	@Override
+	public Activity getTopActivity() {
+		return topActivity.get();
 	}
 }

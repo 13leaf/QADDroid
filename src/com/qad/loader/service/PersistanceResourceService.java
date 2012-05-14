@@ -19,8 +19,9 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 		super(cacheDir);
 	}
 	
-	public PersistanceResourceService(File cacheDir,long expiredTimeSpan) {
-		super(cacheDir,expiredTimeSpan);
+	public PersistanceResourceService(File cacheDir,int requiredSize) {
+		super(cacheDir);
+		this.requiredSize=requiredSize;
 	}
 	
 	/**
@@ -30,7 +31,7 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 	 */
 	public PersistanceResourceService(File cacheDir,long expiredTimeSpan,int size)
 	{
-		this(cacheDir,expiredTimeSpan);
+		super(cacheDir,expiredTimeSpan);
 		if(size<=0)
 			throw new IllegalArgumentException("Required Size can not be negative : "+size);
 		requiredSize=size;

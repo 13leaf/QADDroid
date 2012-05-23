@@ -12,9 +12,10 @@ import com.qad.loader.service.MixedCacheService;
  * @author 13leaf
  * 
  */
-public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
+public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 		implements LoadListener {
 	
+	//TODO 更改View为target，提供background??
 	/**
 	 * 回调处理预加载、加载完毕如何显示
 	 * @author 13leaf
@@ -50,14 +51,14 @@ public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 	private ImageDisplayer defaultDisplayer;
 	private MixedCacheService<Bitmap> cacheService=new MixedCacheService<Bitmap>(50);
 
-	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
+	public ImageLoader(BaseLoadService<String, Bitmap> loadService,
 			Drawable defaultRes) {
 		super(loadService);
 		defaultDisplayer = new DefaultImageDisplayer(defaultRes);
 		addListener(this);
 	}
 
-	public ThumbnailLoader(BaseLoadService<String, Bitmap> loadService,
+	public ImageLoader(BaseLoadService<String, Bitmap> loadService,
 			ImageDisplayer displayer, int flag) {
 		super(loadService, flag);
 		this.defaultDisplayer = displayer;
@@ -131,7 +132,7 @@ public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 	 *
 	 */
 	public static class DefaultImageDisplayer implements
-			ThumbnailLoader.ImageDisplayer {
+			ImageLoader.ImageDisplayer {
 		private final Drawable defaultDrawable;
 
 		public DefaultImageDisplayer(Drawable drawable) {
@@ -157,7 +158,7 @@ public class ThumbnailLoader extends QueueLoader<String, ImageView, Bitmap>
 	 * @author 13leaf
 	 *
 	 */
-	public static class DisplayShow implements ThumbnailLoader.ImageDisplayer {
+	public static class DisplayShow implements ImageLoader.ImageDisplayer {
 
 		@Override
 		public void prepare(ImageView img) {

@@ -11,6 +11,7 @@ import android.view.View;
 import com.qad.annotation.FillAble;
 import com.qad.annotation.FillPojo;
 import com.qad.annotation.FillType;
+import com.qad.render.RenderEngine;
 import com.qad.util.ViewTool;
 
 /**
@@ -28,6 +29,7 @@ import com.qad.util.ViewTool;
  * 目前{@link POJOFiller}的实现类包括 {@link PurePojoFiller}和 {@link AdapterPOJOFiller}两种。PurePojoFiller是指单纯的一对一属性映射，如setText(pojoAttr)<br>
  * 而AdapterPojoFiller则是针对一个Pojo属性对于列表/数组中的某一项的操作。类似setSelect(pojoAttri)和pojoAttr=getSelect()这种操作。
  * </p>
+ * @deprecated 使用{@link com.qad.render.RenderEngine}替代
  * TODO 重写这里的实现
  * @see AdapterPOJOFiller
  * @see PurePojoFiller

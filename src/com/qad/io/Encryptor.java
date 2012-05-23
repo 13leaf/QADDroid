@@ -39,7 +39,7 @@ public class Encryptor {
 	
 	private static void encrypt2(byte[] content,byte[] key,int start,int keyOffset)
 	{
-		for(int i=keyOffset;i<key.length;i++)
+		for(int i=keyOffset;(i<key.length) && (i-keyOffset<content.length);i++)
 			content[i-keyOffset]^=key[i];
 		encrypt1(content, key, key.length-keyOffset+start);
 	}

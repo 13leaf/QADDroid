@@ -80,13 +80,16 @@ public class MixedCacheService<T> extends BaseCacheLoadService<String, T> {
 
 	private void ensureShrinkStrong() {
 		if(cache1.length()<maxSize) return;//don't need shrink
-		int minCount=-1;
+		int minCount=Integer.MAX_VALUE;
 		String minParam="";
 		for(String param:loadCount.keySet())
 		{
-			if(loadCount.get(param)<minCount)
+			int t=loadCount.get(param);
+			if(t<minCount)
 			{
+				minCount=t;
 				minParam=param;
+				if(minCount==0) break;
 			}
 		}
 		loadCount.remove(minParam);

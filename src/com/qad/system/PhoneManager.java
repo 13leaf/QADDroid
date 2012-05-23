@@ -38,7 +38,7 @@ public class PhoneManager{
 	
 	//
 	
-	public static PhoneManager getInstance(final Context context) {
+	public static synchronized PhoneManager getInstance(final Context context) {
 		if (instance == null) {
 			instance = new PhoneManager(context.getApplicationContext());//ensure for application context
 		}

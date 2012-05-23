@@ -1,14 +1,12 @@
-package com.qad.annotation;
-
-import com.qad.render.RenderType;
+package com.qad.render;
 
 /**
- * 填充类型
+ * 
+ * 渲染类别。
  * @author 13leaf
  *
- *@deprecated 使用{@link RenderType}替代
  */
-public enum FillType {
+public enum RenderType {
 	/**
 	 * 根据设置的字段类型自动填充
 	 */
@@ -51,5 +49,4 @@ public enum FillType {
 	 * 使用自定义类型
 	 */
 	custom
-
 }

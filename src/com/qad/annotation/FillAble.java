@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.qad.render.Render;
+
 
 /**
  * 
@@ -19,7 +21,7 @@ import java.lang.annotation.Target;
  * <li>亦可设置FillType为custome后应当自定义其viewField属性和fieldType属性。</li>
  * </ul>
  * @author 13leaf
- *
+ *@deprecated 使用{@link Render}替代
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

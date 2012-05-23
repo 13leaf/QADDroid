@@ -11,8 +11,8 @@ import android.app.Activity;
 // * TODO 若View不是列表样式，而是RadioGroup的形式。那么该如何解决？
  * @see POJOTextFiller
  * @author Administrator
+ * @deprecated 使用{@link com.qad.render.RenderEngine}替代
  */
-@Deprecated
 public abstract class AdapterPOJOFiller extends POJOFiller{
 
 	public AdapterPOJOFiller(Activity context) {

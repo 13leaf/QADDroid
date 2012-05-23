@@ -131,6 +131,11 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	public BaseLoadService<Param, Result> getLoadService() {
 		return loadService;
 	}
+	
+	public final void startLoading(Param param,Target target)
+	{
+		startLoading(new LoadContext<Param, Target, Result>(param, target));
+	}
 
 	@Override
 	public final void startLoading(LoadContext<Param, Target, Result> context) {

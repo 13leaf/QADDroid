@@ -5,23 +5,23 @@ import java.util.List;
 
 import com.qad.loader.ImageLoader;
 import com.qad.loader.ImageLoader.ImageDisplayer;
+import com.qad.view.PageListView.PageAdapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public class RenderAdapter extends BaseAdapter {
+@SuppressWarnings("rawtypes")
+public class RenderAdapter extends BaseAdapter implements PageAdapter{
 
 	private WeakReference<ImageLoader> loaderRef;
 	private int layout;
 	private List<?> data;
-	private String namespace;
 	private ImageDisplayer displayer;
 
-	public RenderAdapter(List<?> data, int layout, String namespace,ImageLoader loader,ImageDisplayer displayer) {
+	public RenderAdapter(List<?> data, int layout, ImageLoader loader,ImageDisplayer displayer) {
 		this.data = data;
-		this.namespace=namespace;
 		this.layout = layout;
 		this.loaderRef = new WeakReference<ImageLoader>(loader);
 		this.displayer=displayer;
@@ -52,7 +52,20 @@ public class RenderAdapter extends BaseAdapter {
 			convertView = LayoutInflater.from(parent.getContext())
 					.inflate(layout, null);
 		}
-		RenderEngine.render(convertView, getItem(position), namespace, loaderRef.get(),displayer);
+		RenderEngine.render(convertView, getItem(position), loaderRef.get(),displayer);
 		return convertView;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void addPage(Object pageContent) {
+		if(pageContent instanceof List)
+		{
+			List list=(List) pageContent;
+			if(data!=null){
+				data.addAll(list);
+				notifyDataSetChanged();
+			}
+		}
 	}
 }

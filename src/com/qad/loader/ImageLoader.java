@@ -50,6 +50,13 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 
 	private ImageDisplayer defaultDisplayer;
 	private MixedCacheService<Bitmap> cacheService=new MixedCacheService<Bitmap>(50);
+	
+	public ImageLoader(BaseLoadService<String, Bitmap> loadService)
+	{
+		super(loadService);
+		defaultDisplayer=new DisplayShow();
+		addListener(this);
+	}
 
 	public ImageLoader(BaseLoadService<String, Bitmap> loadService,
 			Drawable defaultRes) {
@@ -73,7 +80,7 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 	public final void startLoading(LoadContext<String, ImageView, Bitmap> context,ImageDisplayer mDisplayer) {
 		if(context!=null && context.target!=null)//inject displayer
 		{
-			context.target.setTag(new Pack(mDisplayer==null?mDisplayer:defaultDisplayer, context.param));
+			context.target.setTag(new Pack(mDisplayer!=null?mDisplayer:defaultDisplayer, context.param));
 		}
 		startLoading(context);
 	}

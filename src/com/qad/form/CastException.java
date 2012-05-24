@@ -1,5 +1,6 @@
 package com.qad.form;
 
+@Deprecated
 public class CastException extends Exception {
 
 	/**

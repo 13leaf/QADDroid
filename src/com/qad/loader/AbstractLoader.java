@@ -23,6 +23,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		Loader<Param, Target, Result> {
 
 	private HashSet<LoadListener> listeners = new HashSet<LoadListener>();
+	
+	private LoaderCallback callback;
 
 	/**
 	 * 若设置了该Flag,则会过滤掉请求,当它们传入的参数和目标与发出的执行任务都一样时。
@@ -89,6 +91,10 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	 */
 	public State getState() {
 		return state;
+	}
+	
+	public void setCallback(LoaderCallback callback) {
+		this.callback = callback;
 	}
 
 	/**
@@ -157,8 +163,13 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		}
 		if (state == State.PAUSING)
 			return;
-		if (onLoading(context))
+		boolean accept=onLoading(context);
+		if (accept){
 			state = State.RUNNING;
+		}
+		if(callback!=null){
+			callback.onLoading(accept);
+		}
 	}
 
 	@Override
@@ -175,11 +186,14 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		synchronized (lock) {
 			state = State.DESTROYED;
 			onDestroy(now);// let subClass destroy first
-
+			if(callback!=null)
+				callback.onDestroy();
+			
 			// remove all pending messages
 			shutdownMainHandler();
 			submitedTask.clear();
 			submitedTask = null;
+			callback=null;
 		}
 	}
 	
@@ -278,8 +292,10 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			logger.debugLog("invalidate result ,abandon it!");
 			abandon(context);
 			notifyListeners(context, false);
+			if(callback!=null) callback.onLoadFail();
 		} else {
 			notifyListeners(context, true);
+			if(callback!=null) callback.onLoadComplete();
 		}
 	}
 

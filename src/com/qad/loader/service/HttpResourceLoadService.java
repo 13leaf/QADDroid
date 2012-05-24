@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.client.ClientProtocolException;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 
@@ -77,9 +75,7 @@ public class HttpResourceLoadService extends BaseLoadService<String, Bitmap> {
 			Streams.writeAndClose(fos, bis);
 			result =  Files.fetchImage(cacheImageFile.getAbsolutePath(),requiredSize);
 			cacheImageFile.delete();
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			cacheImageFile.delete();

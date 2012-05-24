@@ -2,6 +2,7 @@ package com.qad.service;
 
 import java.io.IOException;
 
+import android.content.Context;
 import android.content.Intent;
 
 import com.qad.annotation.InjectExtras;
@@ -29,6 +30,16 @@ public class DownloadService extends BaseIntentService implements
 	public static final String EXTRA_DOWNLOAD_PROGRESS = "extra.com.qad.service.download_progress";
 	public static final String EXTRA_DOWNLOAD_RESULT = "extra.com.qad.service.download_result";
 
+	public static void start(Context context,String downloadUrl,String downloadTarget,Intent extras)
+	{
+		Intent intent=new Intent(context,DownloadService.class);
+		intent.putExtra(EXTRA_DOWNLOAD_URL, downloadUrl);
+		intent.putExtra(EXTRA_TARGET_PATH, downloadTarget);
+		if(extras!=null)
+			intent.putExtras(extras);
+		context.startService(intent);
+	}
+	
 	public DownloadService() {
 		super("DownloadService");
 	}

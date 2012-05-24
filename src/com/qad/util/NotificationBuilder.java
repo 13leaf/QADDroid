@@ -16,6 +16,7 @@ import android.widget.RemoteViews;
  * @author 13leaf
  * 
  */
+@SuppressWarnings("unused")
 public class NotificationBuilder {
 	private Context mContext;
 	

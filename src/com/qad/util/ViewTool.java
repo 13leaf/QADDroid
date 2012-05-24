@@ -1,22 +1,8 @@
 package com.qad.util;
 
 import android.view.View;
-import android.view.ViewStub;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 public class ViewTool {
 	private View mView;
@@ -58,50 +44,6 @@ public class ViewTool {
 	public void setDecorView(View decorView)
 	{
 		mView=decorView;
-	}
-
-	public TextView findT(int id) {
-		return (TextView) mView.findViewById(id);
-	}
-	public ImageView findIV(int id)
-	{
-		return (ImageView) mView.findViewById(id);
-	}
-	public EditText findET(int id) {
-		return (EditText) mView.findViewById(id);
-	}
-	public Spinner findSP(int id) {
-		return (Spinner) mView.findViewById(id);
-	}
-	public GridView findGV(int id) {
-		return (GridView) mView.findViewById(id);
-	}
-	public LinearLayout findLLayout(int id) {
-		return (LinearLayout) mView.findViewById(id);
-	}
-	public ProgressBar findPB(int id) {
-		return (ProgressBar) mView.findViewById(id);
-	}
-	public Button findB(int id) {
-		return (Button) mView.findViewById(id);
-	}
-	public ImageButton findIB(int id) {
-		return (ImageButton) mView.findViewById(id);
-	}
-	public ViewStub findST(int id) {
-		return (ViewStub) mView.findViewById(id);
-	}
-	public WebView findWeb(int id) {
-		return (WebView) mView.findViewById(id);
-	}
-	public ListView findLV(int id) {
-		return (ListView) mView.findViewById(id);
-	}
-	public ViewSwitcher findVSW(int id) {
-		return (ViewSwitcher) mView.findViewById(id);
-	}
-	public ScrollView findSV(int id){
-		return (ScrollView) mView.findViewById(id);
 	}
 
 	/**

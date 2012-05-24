@@ -138,7 +138,7 @@ public  class PageListView extends ListView {
 	 */
 	public PageListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		//set flag mode
+		//set flag mode...不大好
 		String mode=attrs.getAttributeValue(null, "mode");//default for auto
 		if(mode==null) setTriggerMode(AUTO_MODE);
 		else if(mode.equals("auto")) setTriggerMode(AUTO_MODE);

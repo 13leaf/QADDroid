@@ -175,6 +175,11 @@ public class LoadServices {
 				new PersistanceResourceService(cacheDir, requiredSize),
 				FLAG_CACHE_FIRST);
 	}
+	
+	public static BaseLoadService<String, Bitmap> newHttpImageNoCache(Context context)
+	{
+		return new HttpResourceLoadService(context);
+	}
 
 	/**
 	 * 新建一个从Http载入数据,不包含缓存策略的载入服务。

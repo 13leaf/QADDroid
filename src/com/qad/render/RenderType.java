@@ -20,6 +20,10 @@ public enum RenderType {
 	 */
 	image,
 	/**
+	 * 映射文本颜色
+	 */
+	textColor,
+	/**
 	 * 映射一个文本的text
 	 */
 	text,

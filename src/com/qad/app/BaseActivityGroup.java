@@ -21,21 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.qad.debug.ViewServer;
 import com.qad.inject.ExtrasInjector;
@@ -77,18 +63,42 @@ public class BaseActivityGroup extends ActivityGroup {
 		PreferenceInjector.inject(getApplicationContext(), this);
 		
         ViewServer.get(this).addWindow(this);//for debug
+        ensureAppOpen();
+	}
+
+	private void ensureAppOpen() {
+		BaseApplication application=(BaseApplication) getApplication();
+		if(application!=null)
+		{
+			application.pushTaskStack(this);
+			if(application.getTaskSize()==1)
+				application.onOpen();
+		}
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		//remove broadcast
-		for(BaseBroadcastReceiver receiver:managedReceivers)
+		LinkedList<BaseBroadcastReceiver> copy=new LinkedList<BaseBroadcastReceiver>(managedReceivers);
+		for(BaseBroadcastReceiver receiver:copy)
 			unregisterReceiver(receiver);
-		managedReceivers.clear();
+		copy.clear();
 		ViewServer.get(this).removeWindow(this);//for debug
+		ensureAppClose();
 	}
 	
+	private void ensureAppClose() {
+		BaseApplication application=(BaseApplication) getApplication();
+		if(application!=null )
+		{
+			application.popTaskStack();
+			if(application.getTaskSize()==0)
+				application.onClose();
+		}
+		
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -249,114 +259,6 @@ public class BaseActivityGroup extends ActivityGroup {
 	}
 
 	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findT(int)
-	 */
-	public TextView findT(int id) {
-		return tool.findT(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findET(int)
-	 */
-	public EditText findET(int id) {
-		return tool.findET(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findSP(int)
-	 */
-	public Spinner findSP(int id) {
-		return tool.findSP(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findGV(int)
-	 */
-	public GridView findGV(int id) {
-		return tool.findGV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findLLayout(int)
-	 */
-	public LinearLayout findLLayout(int id) {
-		return tool.findLLayout(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findPB(int)
-	 */
-	public ProgressBar findPB(int id) {
-		return tool.findPB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findB(int)
-	 */
-	public Button findB(int id) {
-		return tool.findB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findIB(int)
-	 */
-	public ImageButton findIB(int id) {
-		return tool.findIB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findST(int)
-	 */
-	public ViewStub findST(int id) {
-		return tool.findST(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findWeb(int)
-	 */
-	public WebView findWeb(int id) {
-		return tool.findWeb(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findLV(int)
-	 */
-	public ListView findLV(int id) {
-		return tool.findLV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findVSW(int)
-	 */
-	public ViewSwitcher findVSW(int id) {
-		return tool.findVSW(id);
-	}
-
-	/**
 	 * @param ids
 	 * @param l
 	 * @see practice.utils.ActivityTool#setOnClickListener(int[], android.view.View.OnClickListener)
@@ -407,14 +309,6 @@ public class BaseActivityGroup extends ActivityGroup {
 		proxycContext.testLog(msg);
 	}
 
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findSV(int)
-	 */
-	public ScrollView findSV(int id) {
-		return tool.findSV(id);
-	}
 	
 	@Override
 	public int hashCode() {
@@ -481,24 +375,6 @@ public class BaseActivityGroup extends ActivityGroup {
 	 */
 	public View findViewByIdName(String idName) {
 		return tool.findViewByIdName(idName);
-	}
-
-	/**
-	 * 
-	 * @see practice.utils.ActivityTool#findAllViewFileds()
-	 */
-	@Deprecated
-	public void findAllViewFileds() {
-		tool.findAllViewFileds();
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findIV(int)
-	 */
-	public ImageView findIV(int id) {
-		return tool.findIV(id);
 	}
 
 	/**
@@ -649,11 +525,15 @@ public class BaseActivityGroup extends ActivityGroup {
 		proxycContext.verboseLog(msg);
 	}
 
-	public void restartActivity() {
-		tool.restartActivity();
-	}
-
 	public void unLockOrientation() {
 		tool.unLockOrientation();
+	}
+
+	public int getBrightness() {
+		return tool.getBrightness();
+	}
+
+	public void closeApp() {
+		tool.closeApp();
 	}
 }

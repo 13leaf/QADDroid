@@ -7,7 +7,6 @@ import android.view.View;
  * TODO 建立一个主题框架。
  * 当接受到ConfigurationChange广播的时候更改前台的显示资源。
  * 目前仅考虑更换drawable
- * 通过observeView注册观察,通过chooseTheme
  * @author 13leaf
  *
  */

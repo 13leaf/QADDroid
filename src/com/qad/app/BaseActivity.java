@@ -12,7 +12,6 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AndroidRuntimeException;
@@ -21,21 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.qad.annotation.InjectExtras;
 import com.qad.annotation.InjectResource;
@@ -54,7 +39,6 @@ import com.qad.util.CloseBroadCastReceiver;
 /**
  * BaseActivity作为Activity的基类提供了许多方便的特性。继承BaseActivity替代Activity会让编程更加简单。<br>
  * BaseActivity的特性有如下一些:<br><ol>
- * <li><b>AutoCase find</b>为常用的findViewById方法做了优化。可以通过简单的find[View名称缩写]来寻找View,并且进行自动转型。如findT(id)返回TextView对象</li>
  * <li><b>Android字段注入。</b>可注入的内容有:View,Extra,Resource等。BaseActivity会通过侦听Activity的周期来恰当的进行注入值。一般情况下,<br>
  * 当调用Activity.setContentView()时会出发View字段注入。当onCreate或onNewIntent时会产生Extra注入。仅当onCreate时才会产生资源注入。<br>
  * 注入字段可为静态。若想手动注入,则可以调用XXXInjector.inject(xx,instance)。以下是一些典型用法:<br>
@@ -64,8 +48,7 @@ import com.qad.util.CloseBroadCastReceiver;
  * '@{@link InjectSystemService}(name=Context.LayoutInflator) LayoutInflator inflator;<br>
  * <li><b>打印友好的</b>:例如showMessage()->Toast的短显示.showLongMessage()->Toast的长显示.<br>
  * debugLog()->写入日志。该日志的Tag为当前Activity的类名称。</li>
- * <li><b>简化跳转</b>:重写了startActivity的方法。这对于不包含Extra的本地Activity跳转十分有用。例如startActivity(Activity2.class)。<br>
- * 另外还重写了Service的start方法。创造了ServiceConnection这种机制封装了冗杂的Service编程，详情见@see {@link ServiceConnection}</li>
+ * <li><b>简化跳转</b>:重写了startActivity的方法。这对于不包含Extra的本地Activity跳转十分有用。例如startActivity(Activity2.class)。<br></li>
  * <li><b>其它工具</b>调用createShortCut()将为应用创建一个桌面图标。<br>
  * 调用hideInput()可以强制关闭某个View，尤其是TextView的软键盘。<br>
  * 调用showConfirmDialog(),showMessageDialog()可以方便的弹出对话框。<br>
@@ -76,6 +59,8 @@ import com.qad.util.CloseBroadCastReceiver;
  * Button button=(Button)findViewById(R.id.button);//by int<br>
  * Button button=(Button)findViewByIdName("button");//by string<br>
  * </li>
+ * <li>仿照Dialog风格的Notification管理。可以使用onCreateNotification构建Notification,使用showNotification/cancelNotification来显示和取消通知。</li>
+ * <li>自动管理硬编码的BroadcastReceiver,在destroy时会自动unregister通过registerManagedReceiver注册的监听器。</li>
  * </ol>
  * @author 13leaf
  *
@@ -110,18 +95,42 @@ public class BaseActivity extends Activity{
 		PreferenceInjector.inject(getApplicationContext(), this);
 		
         ViewServer.get(this).addWindow(this);//for debug
+        ensureAppOpen();
+	}
+
+	private void ensureAppOpen() {
+		BaseApplication application=(BaseApplication) getApplication();
+		if(application!=null)
+		{
+			application.pushTaskStack(this);
+			if(application.getTaskSize()==1)
+				application.onOpen();
+		}
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		//remove broadcast
-		for(BaseBroadcastReceiver receiver:managedReceivers)
+		LinkedList<BaseBroadcastReceiver> copy=new LinkedList<BaseBroadcastReceiver>(managedReceivers);
+		for(BaseBroadcastReceiver receiver:copy)
 			unregisterReceiver(receiver);
-		managedReceivers.clear();
+		copy.clear();
 		ViewServer.get(this).removeWindow(this);//for debug
+		ensureAppClose();
 	}
 	
+	private void ensureAppClose() {
+		BaseApplication application=(BaseApplication) getApplication();
+		if(application!=null )
+		{
+			application.popTaskStack();
+			if(application.getTaskSize()==0)
+				application.onClose();
+		}
+		
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -282,114 +291,6 @@ public class BaseActivity extends Activity{
 	}
 
 	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findT(int)
-	 */
-	public TextView findT(int id) {
-		return tool.findT(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findET(int)
-	 */
-	public EditText findET(int id) {
-		return tool.findET(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findSP(int)
-	 */
-	public Spinner findSP(int id) {
-		return tool.findSP(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findGV(int)
-	 */
-	public GridView findGV(int id) {
-		return tool.findGV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findLLayout(int)
-	 */
-	public LinearLayout findLLayout(int id) {
-		return tool.findLLayout(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findPB(int)
-	 */
-	public ProgressBar findPB(int id) {
-		return tool.findPB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findB(int)
-	 */
-	public Button findB(int id) {
-		return tool.findB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findIB(int)
-	 */
-	public ImageButton findIB(int id) {
-		return tool.findIB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findST(int)
-	 */
-	public ViewStub findST(int id) {
-		return tool.findST(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findWeb(int)
-	 */
-	public WebView findWeb(int id) {
-		return tool.findWeb(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findLV(int)
-	 */
-	public ListView findLV(int id) {
-		return tool.findLV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findVSW(int)
-	 */
-	public ViewSwitcher findVSW(int id) {
-		return tool.findVSW(id);
-	}
-
-	/**
 	 * @param ids
 	 * @param l
 	 * @see practice.utils.ActivityTool#setOnClickListener(int[], android.view.View.OnClickListener)
@@ -440,14 +341,6 @@ public class BaseActivity extends Activity{
 		proxycContext.testLog(msg);
 	}
 
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findSV(int)
-	 */
-	public ScrollView findSV(int id) {
-		return tool.findSV(id);
-	}
 	
 	@Override
 	public int hashCode() {
@@ -514,24 +407,6 @@ public class BaseActivity extends Activity{
 	 */
 	public View findViewByIdName(String idName) {
 		return tool.findViewByIdName(idName);
-	}
-
-	/**
-	 * 
-	 * @see practice.utils.ActivityTool#findAllViewFileds()
-	 */
-	@Deprecated
-	public void findAllViewFileds() {
-		tool.findAllViewFileds();
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ActivityTool#findIV(int)
-	 */
-	public ImageView findIV(int id) {
-		return tool.findIV(id);
 	}
 
 	/**
@@ -682,11 +557,15 @@ public class BaseActivity extends Activity{
 		proxycContext.verboseLog(msg);
 	}
 
-	public void restartActivity() {
-		tool.restartActivity();
-	}
-
 	public void unLockOrientation() {
 		tool.unLockOrientation();
+	}
+
+	public int getBrightness() {
+		return tool.getBrightness();
+	}
+
+	public void closeApp() {
+		tool.closeApp();
 	}
 }

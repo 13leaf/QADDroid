@@ -14,4 +14,10 @@ public interface AppManager {
 	 * @return
 	 */
 	Activity getTopActivity();
+	
+	/**
+	 * 获取当前Activity栈的长度
+	 * @return
+	 */
+	int getTaskSize();
 }

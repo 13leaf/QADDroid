@@ -1,12 +1,12 @@
 package com.qad.app;
 
 import java.lang.ref.WeakReference;
+import java.util.Stack;
 
 import android.app.Activity;
 import android.app.Application;
 import android.preference.PreferenceManager;
 
-import com.qad.net.ApnManager;
 import com.qad.system.PhoneManager;
 import com.qad.util.ContextTool;
 
@@ -20,14 +20,15 @@ public class BaseApplication extends Application implements AppManager{
 
 	private ContextTool mContextTool;
 	private WeakReference<Activity> topActivity;
+	private Stack<WeakReference<Activity>> taskStack=new Stack<WeakReference<Activity>>();
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		mContextTool = new ContextTool(this);
-		PhoneManager phoneManager=PhoneManager.getInstance(this);//init PhoneManager
-		ApnManager apnManager=ApnManager.getInstance(this);
-		phoneManager.addOnNetWorkChangeListioner(apnManager);
+		PhoneManager.getInstance(this);//init PhoneManager
+//		ApnManager apnManager=ApnManager.getInstance(this);
+//		phoneManager.addOnNetWorkChangeListioner(apnManager);
 	}
 
 	
@@ -88,6 +89,10 @@ public class BaseApplication extends Application implements AppManager{
 	public void errorLog(Object msg) {
 		mContextTool.errorLog(msg);
 	}
+	
+	public void onOpen(){
+		
+	}
 
 	/**
 	 * 当调用BaseActivity的closeApp后触发。所有活动均已关闭后将触发。
@@ -115,7 +120,29 @@ public class BaseApplication extends Application implements AppManager{
 	public void verboseLog(Object msg) {
 		mContextTool.verboseLog(msg);
 	}
+	
+	/**
+	 * 请勿手动调用
+	 * @param instance
+	 */
+	public void pushTaskStack(Activity instance)
+	{
+		taskStack.push(new WeakReference<Activity>(instance));
+	}
+	
+	/**
+	 * 请勿手动调用
+	 * @return 返回是否栈为空
+	 */
+	public boolean popTaskStack(){
+		taskStack.pop();
+		return !taskStack.isEmpty();
+	}
 
+	/**
+	 * 请勿手动调用
+	 * @param instantce
+	 */
 	public void setTopActivity(Activity instantce) {
 		this.topActivity=new WeakReference<Activity>(instantce);
 	}
@@ -123,5 +150,11 @@ public class BaseApplication extends Application implements AppManager{
 	@Override
 	public Activity getTopActivity() {
 		return topActivity.get();
+	}
+
+
+	@Override
+	public int getTaskSize() {
+		return taskStack.size();
 	}
 }

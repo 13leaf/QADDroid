@@ -1,7 +1,5 @@
 package com.qad.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import android.app.Activity;
@@ -12,28 +10,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
-import android.os.Build;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 /**
  * 提供Activity的一些工具方法。
@@ -73,38 +58,21 @@ public class ActivityTool {
 	public String toString() {
 		return super.toString();
 	}
-
+	
 	/**
-	 * 重新启动Activity,若是API5版本或者以上版本则将使用反射来关闭动画显示。<br>
-	 * 并不能保证一定能关闭动画
+	 * 获取系统当前的亮度值
+	 * @return
 	 */
-	public void restartActivity()
+	public int getBrightness()
 	{
-		Intent intent=mActivity.getIntent();
-		if(Build.VERSION.SDK_INT>=5)//eclair
-		{
-			//hack to close animation http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
-			try {
-				//prepare reflection
-				Field field=Intent.class.getField("FLAG_ACTIVITY_NO_ANIMATION");
-				Method method=Activity.class.getMethod("overridePendingTransition", int.class,int.class);
-				
-				method.invoke(mActivity, 0,0);
-				intent.addFlags(field.getInt(null));
-				mActivity.finish();
-				
-				method.invoke(mActivity, 0,0);
-				mActivity.startActivity(intent);
-				return;
-			} catch (Exception ex){
-				//ignore
-			}
+		try {
+			return Settings.System.getInt(mActivity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+		} catch (SettingNotFoundException e) {
+			e.printStackTrace();
+			return 0;
 		}
-		
-		//otherwise
-		mActivity.finish();
-		mActivity.startActivity(intent);
 	}
+
 
 	/**
 	 * 返回findViewById的装饰视图
@@ -131,38 +99,6 @@ public class ActivityTool {
 			mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}else {
 			mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
-	}
-	
-	
-	/**
-	 * 通过反射和findViewById来获得所有该Activity下的成员变量。<br>
-	 * id名必须与成员变量的名称一致。<br>
-	 * 例如某layout文件中指定<code><TextView android:id="text"...></code>,则对应的Activity中期望包含<code>private TextView text;</code>
-	 * 本方法已过时,请使用InjectView注解来进行注入。
-	 */
-	@Deprecated
-	public void findAllViewFileds()
-	{
-		View decorView=getDecorView();
-		if(decorView==null) throw new RuntimeException("请在setContentView(int layout)后调用本方法");
-		
-		Field[] fields=mActivity.getClass().getDeclaredFields();//由于reflect是允许期间反射的，所以尽管Activity是个通用基类，但是此处将反射得到自定义的子类字段。
-		for (Field field : fields) {
-			//仅判断View成员变量
-			if(View.class.isAssignableFrom(field.getType())){
-				testLog(field.getName());
-				String idName=field.getName();
-				View fieldView=findViewByIdName(idName);//找到idName对应的View
-				field.setAccessible(true);//开启访问权限,可以private访问
-				try {
-					field.set(mActivity,fieldView);
-				} catch (IllegalArgumentException e) {
-					//ignore
-				} catch (IllegalAccessException e) {
-					//ignore
-				}
-			}
 		}
 	}
 	
@@ -362,124 +298,6 @@ public class ActivityTool {
 		mViewTool.setDecorView(getDecorView());
 		return mViewTool;
 	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findT(int)
-	 */
-	public TextView findT(int id) {
-		return getmViewTool().findT(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findET(int)
-	 */
-	public EditText findET(int id) {
-		return getmViewTool().findET(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findSP(int)
-	 */
-	public Spinner findSP(int id) {
-		return getmViewTool().findSP(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findGV(int)
-	 */
-	public GridView findGV(int id) {
-		return getmViewTool().findGV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findLLayout(int)
-	 */
-	public LinearLayout findLLayout(int id) {
-		return getmViewTool().findLLayout(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findPB(int)
-	 */
-	public ProgressBar findPB(int id) {
-		return getmViewTool().findPB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findB(int)
-	 */
-	public Button findB(int id) {
-		return getmViewTool().findB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findIB(int)
-	 */
-	public ImageButton findIB(int id) {
-		return getmViewTool().findIB(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findST(int)
-	 */
-	public ViewStub findST(int id) {
-		return getmViewTool().findST(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findWeb(int)
-	 */
-	public WebView findWeb(int id) {
-		return getmViewTool().findWeb(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findLV(int)
-	 */
-	public ListView findLV(int id) {
-		return getmViewTool().findLV(id);
-	}
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findVSW(int)
-	 */
-	public ViewSwitcher findVSW(int id) {
-		return getmViewTool().findVSW(id);
-	}
-
-
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findSV(int)
-	 */
-	public ScrollView findSV(int id) {
-		return getmViewTool().findSV(id);
-	}
 	
 	/**
 	 * @param ids
@@ -538,14 +356,6 @@ public class ActivityTool {
 		getmViewTool().setOnClickListener(listener, views);
 	}
 
-	/**
-	 * @param id
-	 * @return
-	 * @see practice.utils.ViewTool#findIV(int)
-	 */
-	public ImageView findIV(int id) {
-		return getmViewTool().findIV(id);
-	}
 
 	/**
 	 * @param idName

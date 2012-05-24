@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Render {
-	String namespace() default "";
 	int id() default 0;
 	RenderType type() default RenderType.auto;
 	String setter() default "";

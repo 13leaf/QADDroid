@@ -13,7 +13,7 @@ import android.os.AsyncTask;
  * <li>当取消载入对话框，则自动cancel异步任务</li>
  * </ol>
  * <br>当然，我们可以设置是否将cancel对话框与cancel任务绑定在一起。默认情况是绑定的。
- * FIXME 使用AsyncTask有几个bug:1.未处理onPostExecute时上下文切换的问题2.未处理横竖屏切换导致线程重启以及onPostExecute时上下文问题
+ * @deprecated 使用AsyncTask有几个bug:1.未处理onPostExecute时上下文切换的问题2.未处理横竖屏切换导致线程重启以及onPostExecute时上下文问题。使用Loader框架代替之
  * @author 13leaf
  * @param <Params>
  * @param <Progress>

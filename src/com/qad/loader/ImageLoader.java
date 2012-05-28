@@ -2,6 +2,7 @@ package com.qad.loader;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.qad.loader.service.BaseLoadService;
@@ -167,16 +168,34 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 	 */
 	public static class DisplayShow implements ImageLoader.ImageDisplayer {
 
+		private boolean gone;
+		
+		public DisplayShow()
+		{
+			gone=false;
+		}
+		
+		public DisplayShow(boolean gone)
+		{
+			this.gone=gone;
+		}
+		
 		@Override
 		public void prepare(ImageView img) {
 			img.setBackgroundDrawable(null);
+			if(gone)
+				img.setVisibility(View.GONE);
 		}
 
 		@Override
 		public void display(ImageView img, Bitmap bmp) {
 			if (bmp == null) {
 				img.setImageDrawable(null);
+				if(gone)
+					img.setVisibility(View.GONE);
 			} else {
+				if(gone)
+					img.setVisibility(View.VISIBLE);
 				img.setImageBitmap(bmp);
 			}
 		}

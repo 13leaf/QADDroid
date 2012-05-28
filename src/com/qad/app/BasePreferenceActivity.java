@@ -72,9 +72,9 @@ public class BasePreferenceActivity extends PreferenceActivity{
 	}
 
 	private void ensureAppOpen() {
-		BaseApplication application=(BaseApplication) getApplication();
-		if(application!=null)
+		if(getApplication() instanceof BaseApplication)
 		{
+			BaseApplication application=(BaseApplication) getApplication();
 			application.pushTaskStack(this);
 			if(application.getTaskSize()==1)
 				application.onOpen();
@@ -94,9 +94,9 @@ public class BasePreferenceActivity extends PreferenceActivity{
 	}
 	
 	private void ensureAppClose() {
-		BaseApplication application=(BaseApplication) getApplication();
-		if(application!=null )
+		if(getApplication() instanceof BaseApplication)
 		{
+			BaseApplication application=(BaseApplication) getApplication();
 			application.popTaskStack();
 			if(application.getTaskSize()==0)
 				application.onClose();
@@ -538,7 +538,7 @@ public class BasePreferenceActivity extends PreferenceActivity{
 		return tool.getBrightness();
 	}
 
-	public void closeApp() {
-		tool.closeApp();
+	public void exitApp() {
+		tool.exitApp();
 	}
 }

@@ -36,6 +36,11 @@ public enum RenderType {
 	 */
 	check,
 	
+	/**
+	 * 映射是否显示
+	 */
+	visibility,
+	
 	/*不常用的映射*/
 	/**
 	 * 映射一个暗示信息，常用于EditText类型

@@ -141,14 +141,13 @@ public class LoadServices {
 	 * @param loadService
 	 * @param cache1
 	 * @param cache2
-	 * @param cacheDir
 	 * @param flag
 	 * @return
 	 */
 	public static <T> BaseLoadService<String, T> wrapHttp2Cache(
 			BaseLoadService<String, T> loadService,
 			BaseCacheLoadService<String, T> cache1,
-			BaseCacheLoadService<String, T> cache2, File cacheDir, int flag) {
+			BaseCacheLoadService<String, T> cache2, int flag) {
 		if (loadService == null || cache1 == null || cache2 == null)
 			throw new NullPointerException();
 		return new Http2CacheService<T>(loadService, cache1, cache2, flag);

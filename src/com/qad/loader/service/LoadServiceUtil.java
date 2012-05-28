@@ -49,4 +49,9 @@ public abstract class LoadServiceUtil {
 		}
 		return cache;
 	}
+	
+	public static <Param,Result> BaseCacheLoadService<Param, Result> wrapExpire(BaseCacheLoadService<Param, Result> cacheLoadService)
+	{
+		return new ExpireCacheService<Param, Result>(cacheLoadService);
+	}
 }

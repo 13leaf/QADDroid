@@ -1,6 +1,7 @@
 package com.qad.form;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 
@@ -9,4 +10,5 @@ import java.io.Serializable;
  */
 public interface PageEntity extends Serializable{
 	int getPageSum();
+	List<?> getData();
 }

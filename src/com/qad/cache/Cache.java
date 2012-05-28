@@ -1,14 +1,8 @@
 package com.qad.cache;
 
 import java.lang.ref.SoftReference;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import android.graphics.Bitmap;
-
-
-
-//并提供从softReference<->filepool的二层cache机制。
 /**
  * 通过getCache获得指定类型的Cache对象。
  * 这里的Cache特指SoftCache
@@ -99,26 +93,5 @@ public class Cache<T> {
 	public int size()
 	{
 		return map.size();
-	}
-	
-	private static final HashMap<Class<?>, Cache<Class<?>>> caches=new HashMap<Class<?>, Cache<Class<?>>>();
-	
-	/**
-	 * 创建一个单例的Cache。加上sychronized确保其同步安全
-	 * @deprecated
-	 * @param type
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static synchronized <T> Cache<T> getCache(Class<? extends T> type)
-	{
-		if(type.isAssignableFrom(Bitmap.class))
-		{
-			return (Cache<T>) ImageCache.getInstance();
-		}
-		if(caches.get(type)==null){
-			caches.put(type, (Cache<Class<?>>) new Cache<T>());
-		}
-		return (Cache<T>) caches.get(type);
 	}
 }

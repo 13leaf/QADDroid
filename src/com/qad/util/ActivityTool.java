@@ -263,7 +263,7 @@ public class ActivityTool {
 	/**
 	 * 发送关闭广播。关闭所有的活动，活动关闭完成之后将触发BaseApplication的onClose。
 	 */
-	public void closeApp()
+	public void exitApp()
 	{
 		mActivity.sendBroadcast(new Intent(CloseBroadCastReceiver.ACTION_EXIT));
 	}

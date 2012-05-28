@@ -31,6 +31,7 @@ public abstract class RenderEngine {
 		mapping.put(RenderType.secondaryProgress, "setSecondaryProgress");//int
 		mapping.put(RenderType.text, "setText");//Charsequence
 		mapping.put(RenderType.textColor, "setTextColor");//int
+		mapping.put(RenderType.visibility, "setVisibility");//int
 	}
 
 	/**

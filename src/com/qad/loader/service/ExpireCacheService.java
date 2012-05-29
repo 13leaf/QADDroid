@@ -12,7 +12,7 @@ import java.util.HashMap;
  */
 public class ExpireCacheService<Param,Result> extends BaseCacheLoadService<Param, Result> {
 
-	private long expiredTime;
+	private final long expiredTime;
 	private BaseCacheLoadService<Param, Result> cacheLoadService;
 	private HashMap<Param, Long> timeStamps=new HashMap<Param, Long>();
 	

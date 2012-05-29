@@ -31,6 +31,14 @@ public abstract class ListLoadableActivity<T extends PageEntity> extends Loadabl
 	}
 	
 	@Override
+	public boolean loadPage(int pageNo, int pageSize) {
+		if(firstLoad){
+			getStateAble().showLoading();
+		}
+		return false;
+	}
+	
+	@Override
 	public void loadComplete(LoadContext<?, ?, ?> context) {
 		if(firstLoad)
 		{

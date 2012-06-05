@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 为字段设置渲染属性。
+ * 为字段或者方法设置渲染属性。若是方法的话，则必须是个空参数，有返回类型的返回。
  * <ol>
  * <li>namespace用于设置命名空间，当一个实体需要服务多个layout时来做区分。</li>
  * <li>id表示目标view的id。若不设置，则将通过反射查找id与字段同名</li>
@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(value={ElementType.FIELD,ElementType.METHOD})
 public @interface Render {
 	int id() default 0;
 	RenderType type() default RenderType.auto;

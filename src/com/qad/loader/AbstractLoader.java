@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.qad.loader.service.BaseCacheLoadService;
 import com.qad.loader.service.BaseLoadService;
 import com.qad.util.WLog;
 
@@ -53,6 +54,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	protected WLog logger = WLog.getMyLogger(getClass());
 
 	protected final BaseLoadService<Param, Result> loadService;
+	
+	protected final BaseCacheLoadService<Param, Result> cacheLoadService;
 
 	protected final static int MSG_DONE = 0;
 
@@ -104,18 +107,27 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	 * @param loadService
 	 */
 	public AbstractLoader(BaseLoadService<Param, Result> loadService) {
-		this(loadService, FLAG_FILTER_DUPLICATE | FLAG_LIFO);
+		this(loadService, null,FLAG_FILTER_DUPLICATE | FLAG_LIFO);
+	}
+	
+	public AbstractLoader(BaseLoadService<Param, Result> loadService,BaseCacheLoadService<Param, Result> cacheLoadService) {
+		this(loadService, cacheLoadService,FLAG_FILTER_DUPLICATE | FLAG_LIFO);
+	}
+	
+	public AbstractLoader(BaseLoadService<Param, Result> loadService,int flag) {
+		this(loadService,null,flag);
 	}
 
 	/**
 	 * 
 	 * @param loadService
+	 * @param cacheLoadService
 	 * @throws NullPointerException
 	 *             loadService为空
 	 * @throws IllegalArgumentException
 	 *             flag设置不正确
 	 */
-	public AbstractLoader(BaseLoadService<Param, Result> loadService, int flag) {
+	public AbstractLoader(BaseLoadService<Param, Result> loadService, BaseCacheLoadService<Param, Result> cacheLoadService,int flag) {
 		if (loadService == null)
 			throw new NullPointerException("loadService can not be null!");
 		if ((flag & (FLAG_FIFO | FLAG_LIFO)) == (FLAG_FIFO | FLAG_LIFO)) {
@@ -130,6 +142,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			logger.warnLog("Unset sequence Flag,use default LIFO");
 			flag = flag | FLAG_LIFO;
 		}
+		this.cacheLoadService=cacheLoadService;
 		this.loadService = loadService;
 		this.flag = flag;
 	}
@@ -155,14 +168,23 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 				logger.debugLog("detect duplicate request,filter it");
 				return;
 			} else {
-				submitedTask.add(context);
+				submitedTask.add(new LoadContext<Param,Target,Result>(context));
 			}
 		} else if ((flag & FLAG_ADD_OR_RESORT) == FLAG_ADD_OR_RESORT) {
 			cancelLoading(context);
-			submitedTask.add(context);
+			submitedTask.add(new LoadContext<Param,Target,Result>(context));
 		}
 		if (state == State.PAUSING)
 			return;
+		//try loading by cache
+		if(cacheLoadService!=null){
+			Result result=cacheLoadService.load(context.param);
+			if(result!=null)
+			{
+				context.result=result;
+				done(context);
+			}
+		}
 		boolean accept=onLoading(context);
 		if (accept){
 			state = State.RUNNING;
@@ -194,6 +216,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 			submitedTask.clear();
 			submitedTask = null;
 			callback=null;
+			if(cacheLoadService!=null)
+				cacheLoadService.clearCache();
 		}
 	}
 	
@@ -256,6 +280,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	private final void abandon(LoadContext<Param, Target, Result> context) {
 		if (state == State.DESTROYED)
 			throw new IllegalStateException("Loader has destroyed!");
+		if(cacheLoadService!=null)
+			cacheLoadService.abandonLoad(context.param);
 		onAbandon(context);
 	}
 
@@ -296,6 +322,8 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		} else {
 			notifyListeners(context, true);
 			if(callback!=null) callback.onLoadComplete();
+			if(cacheLoadService!=null)
+				cacheLoadService.saveCache(context.param, context.result);
 		}
 	}
 

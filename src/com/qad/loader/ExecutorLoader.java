@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 
+import com.qad.loader.service.BaseCacheLoadService;
 import com.qad.loader.service.BaseLoadService;
 
 /**
@@ -56,6 +57,12 @@ public class ExecutorLoader<Param, Target, Result> extends
 		}
 	}
 
+	public ExecutorLoader(BaseLoadService<Param, Result> loadService,BaseCacheLoadService<Param, Result> cacheLoadService,
+			ExecutorService threadPoolExecutor, int flag) {
+		super(loadService, cacheLoadService,flag);
+		this.mExecutorService = threadPoolExecutor;
+	}
+	
 	public ExecutorLoader(BaseLoadService<Param, Result> loadService,
 			ExecutorService threadPoolExecutor, int flag) {
 		super(loadService, flag);

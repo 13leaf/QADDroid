@@ -3,28 +3,31 @@ package com.qad.render;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import com.qad.loader.ImageLoader;
-import com.qad.loader.ImageLoader.ImageDisplayer;
-import com.qad.view.PageListView.PageAdapter;
-
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import com.qad.loader.ImageLoader;
+import com.qad.loader.ImageLoader.ImageDisplayer;
+import com.qad.view.PageListView.PageAdapter;
 
 @SuppressWarnings("rawtypes")
 public class RenderAdapter extends BaseAdapter implements PageAdapter{
 
 	private WeakReference<ImageLoader> loaderRef;
-	private int layout;
+	private ViewFactory factory;
 	private List<?> data;
 	private ImageDisplayer displayer;
 
-	public RenderAdapter(List<?> data, int layout, ImageLoader loader,ImageDisplayer displayer) {
+	public RenderAdapter(List<?> data, ViewFactory factory, ImageLoader loader,ImageDisplayer displayer) {
 		this.data = data;
-		this.layout = layout;
+		this.factory=factory;
 		this.loaderRef = new WeakReference<ImageLoader>(loader);
 		this.displayer=displayer;
+	}
+	
+	public RenderAdapter(List<?> data,int layout, ImageLoader loader,ImageDisplayer displayer) {
+		this(data, new DefaultViewFactory(layout), loader, displayer);
 	}
 
 	@Override
@@ -49,10 +52,11 @@ public class RenderAdapter extends BaseAdapter implements PageAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(parent.getContext())
-					.inflate(layout, null);
+			convertView = factory.createView(parent.getContext(),position);
 		}
-		RenderEngine.render(convertView, getItem(position), loaderRef.get(),displayer);
+		Object data=getItem(position);
+		factory.render(convertView, data, position);
+		RenderEngine.render(convertView, data, loaderRef.get(),displayer);
 		return convertView;
 	}
 

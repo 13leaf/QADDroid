@@ -8,6 +8,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 
+import com.qad.loader.service.BaseCacheLoadService;
 import com.qad.loader.service.BaseLoadService;
 
 /**
@@ -37,6 +38,16 @@ public class QueueLoader<Param, Target, Result> extends
 
 	public QueueLoader(BaseLoadService<Param, Result> loadService, int flag) {
 		super(loadService, flag);
+	}
+
+	public QueueLoader(BaseLoadService<Param, Result> loadService,
+			BaseCacheLoadService<Param, Result> cacheLoadService) {
+		super(loadService, cacheLoadService);
+	}
+
+	public QueueLoader(BaseLoadService<Param, Result> loadService,
+			BaseCacheLoadService<Param, Result> cacheLoadService, int flag) {
+		super(loadService, cacheLoadService, flag);
 	}
 
 	@Override

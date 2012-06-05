@@ -21,13 +21,13 @@ public class Texts {
 		float val=0f;
 		if(fileSize<SIZE_KB){
 			unit="B ";
-			val=fileSize/SIZE_KB;
+			val=fileSize;
 		}else if(fileSize<SIZE_MB){
+			unit="KB";
+			val=fileSize/SIZE_KB;
+		}else if(fileSize<SIZE_GB){
 			unit="MB";
 			val=fileSize/SIZE_MB;
-		}else if(fileSize<SIZE_GB){
-			unit="GB";
-			val=fileSize/SIZE_GB;
 		}
 		String valString=String.format("%.2f", val);
 		if(valString.indexOf('.')==3) valString=valString.substring(0,3);//cut if have 3 digit

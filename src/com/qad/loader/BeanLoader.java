@@ -1,9 +1,11 @@
 package com.qad.loader;
 
 import java.io.Serializable;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 
+import com.qad.loader.service.BaseCacheLoadService;
 import com.qad.loader.service.BaseLoadService;
 
 /**
@@ -31,6 +33,11 @@ public class BeanLoader<Target> extends ExecutorLoader<String, Target , Object> 
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public BeanLoader(ExecutorService threadPoolExecutor, BaseCacheLoadService<String,Target> cacheLoadService,int flag) {
+		super(new NullLoadService(),(BaseCacheLoadService<String, Object>) cacheLoadService,threadPoolExecutor,flag);
+	}
+	
 	public BeanLoader(ExecutorService threadPoolExecutor, int flag) {
 		super(new NullLoadService(), threadPoolExecutor, flag);
 	}

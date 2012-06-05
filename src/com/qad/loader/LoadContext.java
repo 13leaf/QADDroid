@@ -19,6 +19,13 @@ public class LoadContext<Param,Target,Result> {
 		if(param==null || target==null)
 			throw new NullPointerException("Param or Target can not be null!");
 	}
+	
+	public LoadContext(LoadContext<Param, Target, Result> o)
+	{
+		this.param=o.param;
+		this.target=o.target;
+		this.result=o.result;
+	}
 
 	@Override
 	public String toString() {

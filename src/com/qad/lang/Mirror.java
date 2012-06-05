@@ -411,6 +411,17 @@ public class Mirror<T> {
 		}
 		return list.toArray(new Method[list.size()]);
 	}
+	
+	public Method[] getMethods(Class<? extends Annotation> ann)
+	{
+		LinkedList<Method> methods=new LinkedList<Method>();
+		for(Method method:getMethods())
+		{
+			if(method.isAnnotationPresent(ann))
+				methods.add(method);
+		}
+		return methods.toArray(new Method[methods.size()]);
+	}
 
 	/**
 	 * 获取当前对象，所有的方法，包括私有方法。递归查找至自己某一个父类为止 。

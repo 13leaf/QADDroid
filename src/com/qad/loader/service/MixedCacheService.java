@@ -1,5 +1,6 @@
 package com.qad.loader.service;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -9,11 +10,16 @@ import java.util.HashMap;
  *
  * @param <T>
  */
-public class MixedCacheService<T> extends BaseCacheLoadService<String, T> {
+public class MixedCacheService<T> extends BaseCacheLoadService<String, T> implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6670369844935866066L;
 
 	private static int DEFAULT_CACHE_SIZE=20;
 	
-	private SoftCacheService<T> cache2=new SoftCacheService<T>();
+	private transient SoftCacheService<T> cache2=new SoftCacheService<T>();
 	private StrongCacheService<T> cache1=new StrongCacheService<T>();
 	
 	
@@ -30,6 +36,13 @@ public class MixedCacheService<T> extends BaseCacheLoadService<String, T> {
 		this.maxSize=maxSize;
 	}
 	
+	/**
+	 * 为了保证序列化的可用性，应当在反序列化后重新设置。
+	 */
+	public void resetSoftCache()
+	{
+		cache2=new SoftCacheService<T>();
+	}
 	
 	@Override
 	public boolean saveCache(String loadKey, T instance) {

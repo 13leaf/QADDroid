@@ -134,8 +134,10 @@ public class MasterActivity extends BaseActivityGroup {
 	 * 必须在setContentView之后调用此方法。<br>
 	 * <strong>建议不要将按钮重新绑定某个活动，否则绑定前启动的活动将持续占用资源。</strong>
 	 * 
-	 * @param id
-	 *            绑定视图的id号
+	 * @param navView
+	 *            绑定的视图View
+	 * @param mIntent
+	 * 			intent,可注入参数
 	 * @param contentActivity
 	 *            内容活动类
 	 * @param title
@@ -143,11 +145,12 @@ public class MasterActivity extends BaseActivityGroup {
 	 * @param showNow
 	 *            是否在绑定时立即呈现
 	 */
-	public void bindNavigate(int id, Class<? extends Activity> contentActivity,
+	public void bindNavigate(View navView, Class<? extends Activity> contentActivity,Intent mIntent,
 			final String title, boolean showNow) {
-		final Intent intent = getLocalIntent(contentActivity);
+		final Intent intent = new Intent(mIntent);
+		intent.setClass(this, contentActivity);
 		final String contentId = contentActivity.getCanonicalName();
-		final View navigatorView = findViewById(id);
+		final View navigatorView = navView;
 
 		if (showNow) {
 			currentNavigatorView = navigatorView;
@@ -175,9 +178,16 @@ public class MasterActivity extends BaseActivityGroup {
 				showContent(contentId, intent, title);
 			}
 		});
-		entryMap.put(id, new NavigateEntry(contentId, intent, title,
+		entryMap.put(navigatorView.getId(), new NavigateEntry(contentId, intent, title,
 				new WeakReference<View>(navigatorView)));
 	}
+	
+	public void bindNavigate(int id, Class<? extends Activity> contentActivity,
+			final String title, boolean showNow) {
+		bindNavigate(findViewById(id), contentActivity,new Intent(),title,showNow);
+	}
+
+		
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
@@ -269,9 +279,15 @@ public class MasterActivity extends BaseActivityGroup {
 
 		if (!createOnce)
 			mLocalActivityManager.removeAllActivities();// 重建
+		
+		Activity activity=mLocalActivityManager.getActivity(contentId);
+		View contentView=null;
+		if(activity==null || !activity.getIntent().equals(intent)){
+			contentView = mLocalActivityManager.startActivity(contentId,intent).getDecorView();
+		}else {
+			contentView=activity.getWindow().getDecorView();
+		}
 
-		View contentView = mLocalActivityManager.startActivity(contentId,
-				intent).getDecorView();
 		contentViewGroup.removeAllViews();
 		contentViewGroup.addView(contentView);
 	}

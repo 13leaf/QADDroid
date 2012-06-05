@@ -5,8 +5,10 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.qad.loader.service.BaseCacheLoadService;
 import com.qad.loader.service.BaseLoadService;
 import com.qad.loader.service.MixedCacheService;
+import com.qad.loader.service.NoneCacheService;
 
 /**
  * 
@@ -15,7 +17,7 @@ import com.qad.loader.service.MixedCacheService;
  */
 public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 		implements LoadListener {
-	
+
 	//TODO 更改View为target，提供background??
 	/**
 	 * 回调处理预加载、加载完毕如何显示
@@ -50,19 +52,33 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 	}
 
 	private ImageDisplayer defaultDisplayer;
-	private MixedCacheService<Bitmap> cacheService=new MixedCacheService<Bitmap>(50);
+	
+	protected BaseCacheLoadService<String,Bitmap> cacheService;
 	
 	public ImageLoader(BaseLoadService<String, Bitmap> loadService)
 	{
 		super(loadService);
 		defaultDisplayer=new DisplayShow();
+		this.cacheService=new MixedCacheService<Bitmap>(50);
 		addListener(this);
 	}
 
+	public ImageLoader(BaseLoadService<String, Bitmap> loadService,BaseCacheLoadService<String,Bitmap> cacheLoadService,
+			Drawable defaultRes) {
+		super(loadService);
+		defaultDisplayer=new DefaultImageDisplayer(defaultRes);
+		this.cacheService=cacheLoadService;
+		if(this.cacheService==null)
+		{
+			this.cacheService=new NoneCacheService<String, Bitmap>();
+		}
+		addListener(this);
+	}
 	public ImageLoader(BaseLoadService<String, Bitmap> loadService,
 			Drawable defaultRes) {
 		super(loadService);
 		defaultDisplayer = new DefaultImageDisplayer(defaultRes);
+		this.cacheService=new MixedCacheService<Bitmap>(50);
 		addListener(this);
 	}
 
@@ -70,9 +86,21 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 			ImageDisplayer displayer, int flag) {
 		super(loadService, flag);
 		this.defaultDisplayer = displayer;
+		this.cacheService=new MixedCacheService<Bitmap>(50);
 		addListener(this);
 	}
 	
+	public ImageLoader(BaseLoadService<String, Bitmap> loadService,BaseCacheLoadService<String, Bitmap> cacheLoadService,
+			ImageDisplayer displayer, int flag) {
+		super(loadService,flag);
+		this.defaultDisplayer=displayer;
+		this.cacheService=cacheLoadService;
+		if(this.cacheService==null)
+		{
+			this.cacheService=new NoneCacheService<String, Bitmap>();
+		}
+		addListener(this);
+	}
 	/**
 	 * 使用自定义的显示策略来进行加载
 	 * @param context
@@ -182,7 +210,7 @@ public class ImageLoader extends QueueLoader<String, ImageView, Bitmap>
 		
 		@Override
 		public void prepare(ImageView img) {
-			img.setBackgroundDrawable(null);
+			img.setImageBitmap(null);
 			if(gone)
 				img.setVisibility(View.GONE);
 		}

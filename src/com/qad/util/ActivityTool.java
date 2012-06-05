@@ -95,6 +95,7 @@ public class ActivityTool {
 	 * 切换全屏状态
 	 */
 	public void toggleFullScreen(){
+		isFullScreen=!isFullScreen;
 		if(isFullScreen){
 			mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}else {

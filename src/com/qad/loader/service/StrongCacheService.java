@@ -1,5 +1,6 @@
 package com.qad.loader.service;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -8,8 +9,12 @@ import java.util.HashMap;
  *
  * @param <T>
  */
-public class StrongCacheService<T> extends BaseCacheLoadService<String, T> {
+public class StrongCacheService<T> extends BaseCacheLoadService<String, T> implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8158283175855101162L;
 	HashMap<String, T> strongCache=new HashMap<String, T>();
 	
 	@Override

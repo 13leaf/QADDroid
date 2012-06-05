@@ -289,6 +289,7 @@ public  class PageListView extends ListView {
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
 			if(loadFail) return;
+			if(mPageManager.getLoadState()==PageManager.LOADING) return;
 			if(firstVisibleItem+visibleItemCount==totalItemCount || view.getChildAt(visibleItemCount)==loadSwitcher)//翻页到底部
 			{
 				mPageManager.next();//触发翻页

@@ -43,6 +43,7 @@ public abstract class ListLoadableActivity<T extends PageEntity> extends Loadabl
 		if(firstLoad)
 		{
 			firstLoad=false;
+			getStateAble().showNormal();
 		}
 		PageEntity entity=(PageEntity) context.getResult();
 		pageSum=entity.getPageSum();

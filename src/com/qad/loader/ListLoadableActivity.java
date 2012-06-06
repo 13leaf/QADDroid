@@ -14,10 +14,10 @@ import com.qad.form.PageManager;
 @SuppressWarnings(value={"unchecked"})
 public abstract class ListLoadableActivity<T extends PageEntity> extends LoadableActivity<T> implements PageLoader<T>{
 	
-	@SuppressWarnings("rawtypes")
-	private PageManager pager;
 	private boolean firstLoad=true;
 	private int pageSum;
+	@SuppressWarnings("rawtypes")
+	protected PageManager pager;
 	protected int loadNo;
 	protected int pageSize=20;
 
@@ -28,6 +28,15 @@ public abstract class ListLoadableActivity<T extends PageEntity> extends Loadabl
 	
 	public void render(T data) {
 		throw new UnsupportedOperationException();
+	}
+	
+	public void reset()
+	{
+		pageSum=0;
+		firstLoad=true;
+		pager=null;
+		loadNo=0;
+		pageSize=20;
 	}
 	
 	@Override

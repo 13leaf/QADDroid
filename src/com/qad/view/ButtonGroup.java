@@ -4,8 +4,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
+/**
+ * 构造一个单选组。在setSelected后会自动更改View的selected状态,副作用是其会覆写onTouch事件。
+ * @author 13leaf
+ *
+ */
 public class ButtonGroup implements OnTouchListener{
-	final View[] views;
+	View[] views;
 	int currentSelected=0;
 	OnSelectChangeListener listener;
 	
@@ -14,8 +19,18 @@ public class ButtonGroup implements OnTouchListener{
 		void onSelectViewChange(View view);
 	}
 	
+	//do nothing
+	public ButtonGroup()
+	{
+		
+	}
+	
 	public ButtonGroup(View... views)
 	{
+		setViews(views);
+	}
+
+	public void setViews(View... views) {
 		this.views=views;
 		for(View view:views)
 			view.setOnTouchListener(this);

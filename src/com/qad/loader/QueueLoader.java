@@ -104,8 +104,6 @@ public class QueueLoader<Param, Target, Result> extends
 	private Callback loadHandler = new Callback() {
 		@Override
 		public boolean handleMessage(Message msg) {
-			if (getState() == State.DESTROYED)
-				return true;
 			@SuppressWarnings("unchecked")
 			LoadContext<Param, Target, Result> context = (LoadContext<Param, Target, Result>) msg.obj;
 			context.result = loadService.load(context.param);

@@ -228,6 +228,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 	protected void sendToMainThread(Message message)
 	{
 		synchronized (lock) {
+			if(state==State.DESTROYED) return;
 			message.setTarget(mainHandler);
 			message.sendToTarget();
 		}

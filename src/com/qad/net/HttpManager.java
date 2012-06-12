@@ -2,6 +2,7 @@ package com.qad.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -46,6 +47,10 @@ public class HttpManager {
 
 	public static DefaultHttpClient getHttpClient() {
 		return proxy.getHttpClient();
+	}
+	
+	public static HttpURLConnection getUrlConnection(String url) throws IOException{
+		return proxy.getUrlConnection(url);
 	}
 
 	public static InputStream getInputStream(String url) throws IOException {

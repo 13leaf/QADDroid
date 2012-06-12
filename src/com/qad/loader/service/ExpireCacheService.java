@@ -64,7 +64,7 @@ public class ExpireCacheService<Param,Result> extends BaseCacheLoadService<Param
 
 	public boolean isExpired(Param param) {
 		Long timeStamp=timeStamps.get(param);
-		return timeStamp!=null && (System.currentTimeMillis()-timeStamp)>expiredTime;
+		return timeStamp==null || (System.currentTimeMillis()-timeStamp)>expiredTime;
 	}
 
 	@Override

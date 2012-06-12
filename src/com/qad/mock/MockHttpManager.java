@@ -2,6 +2,7 @@ package com.qad.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -50,6 +51,12 @@ public class MockHttpManager implements IHttpManager{
 
 	@Override
 	public String getHttpText(String url) throws IOException {
+		Lang.noImplement();
+		return null;
+	}
+
+	@Override
+	public HttpURLConnection getUrlConnection(String url) throws IOException{
 		Lang.noImplement();
 		return null;
 	}

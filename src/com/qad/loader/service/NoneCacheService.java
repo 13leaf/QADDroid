@@ -10,7 +10,7 @@ package com.qad.loader.service;
 public class NoneCacheService<Param,Result> extends BaseCacheLoadService<Param, Result> {
 	@Override
 	public boolean saveCache(Param loadKey, Result instance) {
-		return false;
+		return true;
 	}
 
 	@Override

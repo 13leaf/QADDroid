@@ -2,6 +2,7 @@ package com.qad.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -54,5 +55,7 @@ public interface IHttpManager {
 	 * @throws IOException
 	 */
 	public abstract String getHttpText(String url) throws IOException;
+
+	public abstract HttpURLConnection getUrlConnection(String url) throws IOException;
 
 }

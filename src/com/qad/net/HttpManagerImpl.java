@@ -139,4 +139,9 @@ public class HttpManagerImpl implements IHttpManager {
 		return Streams.readAndClose(new InputStreamReader(Streams
 				.buff(getInputStream(url))));
 	}
+
+	@Override
+	public HttpURLConnection getUrlConnection(String url) throws IOException{
+		return getHttpUrlConnection(url);
+	}
 }

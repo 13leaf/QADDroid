@@ -16,9 +16,9 @@ import com.qad.app.BaseActivityGroup;
 /**
  * 母版Activity。其母版布局文件中必须包含一个以content为id的layout文件。<br>
  * 默认情况下母版Activity会在首次调用内容Activity时创建它，之后直接跳转到已存在的实例。<br>
- * 因此母版Activity中嵌套的内容Activity应该尽量在onResume方法中响应可能发生更改的地方。<br>
  * 如若希望母版Activity不要在跳转时保存内容Activity实例，换言之每次跳转都是重新create
- * Activity，那么请设置createOnce为false即可。
+   Activity，那么请设置createOnce为false即可。
+   FIXME 保持实例时，Activity的生命周期不能正常激活。
  * 
  * @author 13leaf
  * 
@@ -244,6 +244,8 @@ public class MasterActivity extends BaseActivityGroup {
 		}
 		getContentViewGroup().removeAllViews();
 		getContentViewGroup().addView(contentView);
+		contentView.setFocusable(true);contentView.setFocusableInTouchMode(true);
+		contentView.requestFocus();
 		if(mNavigateListener!=null)
 		{
 			mNavigateListener.onNavigation(tag, intent);

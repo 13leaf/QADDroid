@@ -568,4 +568,16 @@ public class BaseActivity extends Activity{
 	public void exitApp() {
 		tool.exitApp();
 	}
+
+	public boolean containsActivity(Intent intent) {
+		return proxycContext.containsActivity(intent);
+	}
+
+	public boolean isAppInstalled(String uri) {
+		return proxycContext.isAppInstalled(uri);
+	}
+
+	public boolean isDebugMode() {
+		return proxycContext.isDebugMode();
+	}
 }

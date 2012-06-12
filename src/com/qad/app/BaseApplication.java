@@ -5,10 +5,13 @@ import java.util.Stack;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.preference.PreferenceManager;
 
+import com.qad.net.ApnManager;
 import com.qad.system.PhoneManager;
 import com.qad.util.ContextTool;
+import com.qad.util.WLog;
 
 /**
  * 为自定义Application添加了工具方法的支持。<br>
@@ -26,9 +29,10 @@ public class BaseApplication extends Application implements AppManager{
 	public void onCreate() {
 		super.onCreate();
 		mContextTool = new ContextTool(this);
-		PhoneManager.getInstance(this);//init PhoneManager
-//		ApnManager apnManager=ApnManager.getInstance(this);
-//		phoneManager.addOnNetWorkChangeListioner(apnManager);
+		PhoneManager phoneManager=PhoneManager.getInstance(this);//init PhoneManager
+		ApnManager apnManager=ApnManager.getInstance(this);
+		phoneManager.addOnNetWorkChangeListioner(apnManager);
+		if(!isDebugMode()) WLog.closeLogger();
 	}
 
 	
@@ -156,5 +160,20 @@ public class BaseApplication extends Application implements AppManager{
 	@Override
 	public int getTaskSize() {
 		return taskStack.size();
+	}
+
+
+	public boolean containsActivity(Intent intent) {
+		return mContextTool.containsActivity(intent);
+	}
+
+
+	public boolean isAppInstalled(String uri) {
+		return mContextTool.isAppInstalled(uri);
+	}
+
+
+	public boolean isDebugMode() {
+		return mContextTool.isDebugMode();
 	}
 }

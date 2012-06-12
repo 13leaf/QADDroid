@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 /**
@@ -58,6 +59,17 @@ public class ContextTool {
 			errorLog("context not availiable in ContextTool");
 			return false;
 		}
+	}
+	
+	/**
+	 * 是否设置了debuggable
+	 * @return
+	 */
+	public boolean isDebugMode()
+	{
+		Context mContext=contextWrapper.get();
+		if(mContext==null) return false;
+		return (mContext.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
 	}
 
 	@Override

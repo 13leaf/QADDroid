@@ -175,4 +175,16 @@ public abstract class BaseService extends Service {
 		mTool.verboseLog(msg);
 	}
 
+	public boolean containsActivity(Intent intent) {
+		return mWrapperContext.containsActivity(intent);
+	}
+
+	public boolean isAppInstalled(String uri) {
+		return mWrapperContext.isAppInstalled(uri);
+	}
+
+	public boolean isDebugMode() {
+		return mWrapperContext.isDebugMode();
+	}
+
 }

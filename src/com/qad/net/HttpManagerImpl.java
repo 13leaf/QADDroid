@@ -25,7 +25,7 @@ import org.apache.http.params.HttpParams;
 
 import com.qad.lang.Streams;
 
-public class HttpManagerImpl implements IHttpManager {
+class HttpManagerImpl implements IHttpManager {
 
 	private static final HttpParams defaultParams;
 	public final static int CONNECTION_TIMEOUT = 3 * 1000;
@@ -77,8 +77,9 @@ public class HttpManagerImpl implements IHttpManager {
 	 */
 	@Override
 	public boolean shouldUseProxy() {
-		return android.net.Proxy.getDefaultHost() != null
-				&& android.net.Proxy.getDefaultPort() != -1;
+//		return android.net.Proxy.getDefaultHost() != null
+//				&& android.net.Proxy.getDefaultPort() != -1;
+		return ApnManager.useProxy;
 	}
 
 	/* (non-Javadoc)

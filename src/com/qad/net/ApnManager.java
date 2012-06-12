@@ -12,8 +12,7 @@ import android.net.Uri;
 /**
  * 调用init初始化。
  * 之后可以通过访问proxy_server和proxy_port来设置代理
- * 改用android.net.Proxy,今后可考虑在此增加根据sim类型自动代理apn的能力
- * @deprecated
+ * 改用android.net.Proxy,但是发现在联想lehphone上面出现问题。暂时沿用ApnManager
  * @author 13leaf
  *
  */

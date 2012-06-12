@@ -126,4 +126,16 @@ public class BaseContext {
 	public void testLog(Object msg) {
 		tool.testLog(msg);
 	}
+
+	public boolean containsActivity(Intent intent) {
+		return tool.containsActivity(intent);
+	}
+
+	public boolean isAppInstalled(String uri) {
+		return tool.isAppInstalled(uri);
+	}
+
+	public boolean isDebugMode() {
+		return tool.isDebugMode();
+	}
 }

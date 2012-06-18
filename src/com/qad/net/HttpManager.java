@@ -26,6 +26,9 @@ public class HttpManager {
 	public static void setProxy(IHttpManager manager) {
 		if (manager != null)
 			proxy = manager;
+		else{
+			proxy=new HttpManagerImpl();
+		}
 	}
 
 	public static IHttpManager getProxy() {

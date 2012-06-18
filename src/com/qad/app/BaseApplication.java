@@ -5,8 +5,12 @@ import java.util.Stack;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.preference.PreferenceManager;
+import android.util.AndroidRuntimeException;
+import android.util.SparseArray;
 
 import com.qad.net.ApnManager;
 import com.qad.system.PhoneManager;
@@ -155,7 +159,62 @@ public class BaseApplication extends Application implements AppManager{
 	public Activity getTopActivity() {
 		return topActivity.get();
 	}
+	
+	private SparseArray<Notification> mManagedNotifications;
 
+	private NotificationManager notificationManager;
+	
+	protected Notification onCreateNotification(int Id) {
+		return null;
+	}
+
+	protected void onPrepareNotification(int Id, Notification notification) {
+
+	}
+	
+
+	public void showNotification(int id) {
+		ensureNotificationManager();
+		if (mManagedNotifications == null) {
+			mManagedNotifications = new SparseArray<Notification>();
+		}
+		Notification notification = mManagedNotifications.get(id);
+		if (notification == null) {
+			notification = onCreateNotification(id);
+			mManagedNotifications.put(id, notification);
+			if (notification == null) {
+				throw new AndroidRuntimeException(
+						"Are you sure create notification in onCreateNotification which id is :"
+								+ id + "?");
+			}
+		}
+		onPrepareNotification(id, notification);
+		notificationManager.notify(id, notification);
+	}
+
+	public void cancelNotification(int id) {
+		ensureNotificationManager();
+		Notification notification=null;
+		if (mManagedNotifications != null) {
+			notification = mManagedNotifications.get(id);
+		}
+		if (notification == null) {
+			warnLog("Have not ever notify that id " + id + " notification.");
+		}
+		notificationManager.cancel(id);
+	}
+
+	public void cancelAllNotification() {
+		ensureNotificationManager();
+		notificationManager.cancelAll();
+	}
+	
+	private void ensureNotificationManager()
+	{
+		if (notificationManager == null) {
+			notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		}
+	}
 
 	@Override
 	public int getTaskSize() {

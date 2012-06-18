@@ -36,7 +36,7 @@ public class MasterActivity extends BaseActivityGroup {
 
 	private LocalActivityManager mLocalActivityManager;
 
-	private boolean createOnce = false;// 只创建一次内容Activity，之后跳转不重新创建
+	private boolean createOnce = true;// 只创建一次内容Activity，之后跳转不重新创建
 
 	private ViewGroup contentViewGroup;// 内容视图
 
@@ -208,11 +208,11 @@ public class MasterActivity extends BaseActivityGroup {
 	 * @return
 	 */
 	private View start(Intent intent,String tag) {
-		View decorView=mLocalActivityManager.startActivity(tag, intent).getDecorView();
 		if(createOnce){
 			mLocalActivityManager.removeAllActivities();//强制重建
 			entryMap.clear();
 		}
+		View decorView=mLocalActivityManager.startActivity(tag, intent).getDecorView();
 		return decorView;
 	}
 	

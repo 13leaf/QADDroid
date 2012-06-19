@@ -127,6 +127,10 @@ public class MasterActivity extends BaseActivityGroup {
 		{
 			navViews.get(0).performClick();//hack a mock click event
 		}
+		if(currentNavigateId!=null && currentNavigateIntent!=null && !createOnce && mNavigateListener!=null)
+		{
+			mNavigateListener.onNavigation(currentNavigateId, currentNavigateIntent);
+		}
 	}
 	
 	@Override

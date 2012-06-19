@@ -16,7 +16,7 @@ public class ButtonGroup implements OnTouchListener{
 	
 	public static interface OnSelectChangeListener
 	{
-		void onSelectViewChange(View view);
+		void onSelectViewChange(int index,View view);
 	}
 	
 	//do nothing
@@ -67,7 +67,7 @@ public class ButtonGroup implements OnTouchListener{
 			view.setSelected(false);
 		views[currentSelected].setSelected(true);
 		if(listener!=null)
-			listener.onSelectViewChange(views[currentSelected]);
+			listener.onSelectViewChange(currentSelected,views[currentSelected]);
 	}
 
 	public int getCurrentSelectedIndex() {

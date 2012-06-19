@@ -19,6 +19,7 @@ public class Texts {
 		
 		String unit="";
 		float val=0f;
+		if(fileSize<0) fileSize=0;//ensure valid
 		if(fileSize<SIZE_KB){
 			unit="B ";
 			val=fileSize;

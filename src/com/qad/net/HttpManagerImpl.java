@@ -175,7 +175,13 @@ class HttpManagerImpl implements IHttpManager {
 			throw new IOException("responseCode:"
 					+ connection.getResponseCode());
 		}
-		return connection.getInputStream();
+		InputStream is=connection.getInputStream();
+		String encoding=connection.getHeaderField("Content-Encoding");
+		if(encoding!=null && GZIP_PATTERN.matcher(encoding).find())
+		{
+			is=new GZIPInputStream(is);
+		}
+		return is;
 	}
 	
 	final static Pattern GZIP_PATTERN=Pattern.compile("gzip", Pattern.CASE_INSENSITIVE);
@@ -208,15 +214,8 @@ class HttpManagerImpl implements IHttpManager {
 	 */
 	@Override
 	public String getHttpText(String url) throws IOException {
-		HttpURLConnection connection=getHttpUrlConnection(url);
-		InputStream is=connection.getInputStream();
-		String encoding=connection.getHeaderField("Content-Encoding");
-		if(GZIP_PATTERN.matcher(encoding).find())
-		{
-			is=new GZIPInputStream(is);
-		}
 		return Streams.readAndClose(new InputStreamReader(Streams
-				.buff(is)));
+				.buff(getInputStream(url))));
 	}
 
 	@Override

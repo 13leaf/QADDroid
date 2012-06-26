@@ -13,6 +13,7 @@ public class ButtonGroup implements OnTouchListener{
 	View[] views;
 	int currentSelected=0;
 	OnSelectChangeListener listener;
+	boolean allowDoubleSelect;
 	
 	public static interface OnSelectChangeListener
 	{
@@ -44,7 +45,8 @@ public class ButtonGroup implements OnTouchListener{
 	
 	public void setSelected(int index)
 	{
-		if(index>=0 && index<views.length && index!=currentSelected)
+		if(index>=0 && index<views.length && 
+				(index!=currentSelected || allowDoubleSelect))
 		{
 			currentSelected=index;
 			invalidateSelect();
@@ -54,12 +56,20 @@ public class ButtonGroup implements OnTouchListener{
 	public void setSelected(View view)
 	{
 		int index=indexOfView(view);
-		if(index==currentSelected) return;
+		if(index==currentSelected && !allowDoubleSelect) return;
 		if(index!=-1){
 			currentSelected=index;
 			invalidateSelect();
 		}
 		
+	}
+	
+	/**
+	 * 允许重复选择某一项
+	 * @param allowDoubleSelect
+	 */
+	public void setAllowDoubleSelect(boolean allowDoubleSelect) {
+		this.allowDoubleSelect = allowDoubleSelect;
 	}
 	
 	private void invalidateSelect() {

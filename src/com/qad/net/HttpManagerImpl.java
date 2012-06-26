@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.Proxy;
 import java.net.URL;
-import java.net.Proxy.Type;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
@@ -33,6 +30,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+
+import android.util.Log;
 
 import com.qad.lang.Streams;
 
@@ -129,6 +128,10 @@ class HttpManagerImpl implements IHttpManager {
 					android.net.Proxy.getDefaultPort());
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxy);
+		}else {
+			//ensure none httpProxy
+			System.getProperties().remove("http.proxyHost");
+			System.getProperties().remove("http.proxyPort");
 		}
 		//ensure gzipablity
 		httpclient.addRequestInterceptor(new HttpRequestInterceptor() {
@@ -153,6 +156,7 @@ class HttpManagerImpl implements IHttpManager {
                     HeaderElement[] codecs = ceheader.getElements();
                     for (int i = 0; i < codecs.length; i++) {
                         if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+                        	Log.d("HttpManager","use gzip");
                             response.setEntity(
                                     new GzipDecompressingEntity(response.getEntity()));
                             return;
@@ -179,6 +183,7 @@ class HttpManagerImpl implements IHttpManager {
 		String encoding=connection.getHeaderField("Content-Encoding");
 		if(encoding!=null && GZIP_PATTERN.matcher(encoding).find())
 		{
+			Log.d("HttpManager","use gzip");
 			is=new GZIPInputStream(is);
 		}
 		return is;
@@ -191,11 +196,12 @@ class HttpManagerImpl implements IHttpManager {
 		URL httpUrl = new URL(url);
 		HttpURLConnection connection = null;
 		if (shouldUseProxy()) {
-			Proxy proxy = new java.net.Proxy(Type.HTTP, new InetSocketAddress(
-					android.net.Proxy.getDefaultHost(),
-					android.net.Proxy.getDefaultPort()));
-			connection = (HttpURLConnection) httpUrl.openConnection(proxy);
+			connection = (HttpURLConnection) httpUrl.openConnection();
+			System.setProperty("http.proxyHost", android.net.Proxy.getDefaultHost());
+			System.setProperty("http.proxyPort", android.net.Proxy.getDefaultPort()+"");
 		} else {
+			System.getProperties().remove("http.proxyHost");
+			System.getProperties().remove("http.proxyPort");
 			connection = (HttpURLConnection) httpUrl.openConnection();
 		}
 

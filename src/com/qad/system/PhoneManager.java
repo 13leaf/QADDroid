@@ -133,4 +133,8 @@ public class PhoneManager{
 		return info.getImei();
 	}
 
+	public boolean isConnectionFast() {
+		return netWorkAdapter.isConnectionFast();
+	}
+
 }

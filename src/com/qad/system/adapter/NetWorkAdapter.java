@@ -28,7 +28,7 @@ public class NetWorkAdapter implements NetworkListioner {
      */
     public boolean isConnectionFast(){
     	//precheck is connected
-    	if(!activeNetworkInfo.isConnected()) return false;
+    	if(activeNetworkInfo==null || !activeNetworkInfo.isConnected()) return false;
     	int type=activeNetworkInfo.getType();
     	int subType=activeNetworkInfo.getSubtype();
         if(type==ConnectivityManager.TYPE_WIFI){

@@ -60,8 +60,13 @@ public class LoadServices {
 						cache1.saveCache(url, cache);// ensure cache1 saved
 						return cache;// load from cache
 					} else {
-						T result = loadService.load(url);
-						LoadServiceUtil.saveCache(url, result, cache1, cache2);// result为CacheLoadService?没可能吧....
+						T result =null;
+						try {
+							result = loadService.load(url);
+							LoadServiceUtil.saveCache(url, result, cache1, cache2);// result为CacheLoadService?没可能吧....
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 						return result;
 					}
 				}

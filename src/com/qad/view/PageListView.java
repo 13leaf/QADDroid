@@ -58,7 +58,7 @@ public  class PageListView extends ListView {
 	/**
 	 * 载入尾部显示信息
 	 */
-	protected String loadingMsg="正在载入,请稍后...";
+	protected String loadingMsg="正在载入,请稍候...";
 	
 	/**
 	 * 加载失败的提示信息

@@ -128,10 +128,8 @@ class HttpManagerImpl implements IHttpManager {
 					android.net.Proxy.getDefaultPort());
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxy);
-		}else {
-			//ensure none httpProxy
-			System.getProperties().remove("http.proxyHost");
-			System.getProperties().remove("http.proxyPort");
+		}else if(System.getProperties()!=null){
+			unsetProxy();
 		}
 		//ensure gzipablity
 		httpclient.addRequestInterceptor(new HttpRequestInterceptor() {
@@ -197,11 +195,9 @@ class HttpManagerImpl implements IHttpManager {
 		HttpURLConnection connection = null;
 		if (shouldUseProxy()) {
 			connection = (HttpURLConnection) httpUrl.openConnection();
-			System.setProperty("http.proxyHost", android.net.Proxy.getDefaultHost());
-			System.setProperty("http.proxyPort", android.net.Proxy.getDefaultPort()+"");
-		} else {
-			System.getProperties().remove("http.proxyHost");
-			System.getProperties().remove("http.proxyPort");
+			setProxy();
+		} else{
+			unsetProxy();
 			connection = (HttpURLConnection) httpUrl.openConnection();
 		}
 
@@ -213,6 +209,16 @@ class HttpManagerImpl implements IHttpManager {
 		connection.addRequestProperty("Accept-Encoding", "gzip");
 		connection.connect();
 		return connection;
+	}
+
+	private void unsetProxy() {
+		System.getProperties().remove("http.proxyHost");
+		System.getProperties().remove("http.proxyPort");
+	}
+
+	private void setProxy() {
+		System.setProperty("http.proxyHost", android.net.Proxy.getDefaultHost()+"");
+		System.setProperty("http.proxyPort", android.net.Proxy.getDefaultPort()+"");
 	}
 
 	/* (non-Javadoc)

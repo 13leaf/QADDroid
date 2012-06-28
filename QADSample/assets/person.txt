@@ -1,0 +1,13 @@
+{"person":{
+"firstname":"wang",
+"lastname":"feng",
+"phone":{
+"code":"1234",
+"number":"123456"
+},
+"fax":{
+"code":"4321",
+"number":"654321"
+}
+}
+}

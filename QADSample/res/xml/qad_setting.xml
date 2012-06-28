@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <EditTextPreference
+        android:key="@string/key_first"
+        android:summary="Please type your first Name"
+        android:defaultValue="13"
+        android:title="FirstName" />
+        <EditTextPreference
+        android:key="@string/key_second"
+        android:summary="Please type your second Name"
+        android:defaultValue="leaf"
+        android:title="SecondName" />
+
+</PreferenceScreen>

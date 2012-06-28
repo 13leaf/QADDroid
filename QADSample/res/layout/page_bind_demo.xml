@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  >
+  
+  <Button  android:id="@+id/btnPre"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:text="pre"
+  ></Button>
+  
+  <Button  android:id="@+id/btnNext"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:text="next"
+  ></Button>
+  
+  <TextView android:id="@+id/loadTxt"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  />
+</LinearLayout>

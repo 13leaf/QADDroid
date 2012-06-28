@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:gravity="center_vertical"
+  android:orientation="horizontal"
+  >
+  
+   <ImageView  android:layout_width = "60dip"
+   		   android:layout_height = "60dip"
+   		   android:id="@+id/thumb"
+   		   android:src="@drawable/icon"
+   		   android:layout_gravity="center"
+   		   android:layout_marginRight = "10dip"
+   		   android:layout_marginLeft="12dip"  />
+   <LinearLayout   
+   			android:layout_width ="wrap_content"
+   			android:layout_height="wrap_content"
+   			android:layout_weight="1"
+   			android:orientation="vertical"  >
+   			<TextView 
+   			   	android:layout_width ="fill_parent"
+   				android:layout_height="wrap_content"
+   				android:id="@+id/title"
+   				android:text="title"
+   				android:textSize="16sp"
+   				android:lines="2"
+   				/>
+   			<TextView android:id="@+id/updateTime"	
+   				android:text="date"
+   				android:layout_width ="wrap_content"
+   				android:layout_height="wrap_content"
+   				android:textSize="12sp"
+   				android:singleLine="true"/>
+   			<TextView android:id="@+id/content"
+   			   	android:layout_width ="wrap_content"
+   				android:layout_height="wrap_content"
+   			   	android:text="introduce"
+   				android:textSize="14sp"
+   				android:singleLine="true"/>
+   </LinearLayout>
+   			
+</LinearLayout>

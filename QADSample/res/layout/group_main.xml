@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true" >
+
+        <Button
+            android:id="@+id/navi_hot"
+            android:layout_width="39dip"
+            android:layout_height="48dip"
+            android:layout_weight="1"
+            android:text="Activity1"
+            android:clickable="true" />
+
+        <Button
+            android:id="@+id/navi_live"
+            android:layout_width="39dip"
+            android:layout_height="48dip"
+            android:layout_weight="1"
+            android:text="Activity2"
+            android:clickable="true" />
+
+        <Button
+            android:id="@+id/navi_audio"
+            android:layout_width="39dip"
+            android:layout_height="48dip"
+            android:layout_weight="1"
+            android:text="OutterActivity"
+            android:clickable="true" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/bottom_bar" />
+
+</RelativeLayout>

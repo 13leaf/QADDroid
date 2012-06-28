@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical"
+  >  
+  <com.qad.view.PageListView
+  	android:id="@+id/pageListView"
+  	android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+  	mode="auto"
+  	loadButtonText="xml正在载入"
+  	loadErrorMsg="xml载入失败"
+  	loadingMsg="xml正在载入中"/>
+</LinearLayout>

@@ -26,6 +26,10 @@ import com.qad.util.WLog;
 public class BaseApplication extends Application implements AppManager{
 
 	private ContextTool mContextTool;
+	public String getAppVersion(String uri) {
+		return mContextTool.getAppVersion(uri);
+	}
+
 	private WeakReference<Activity> topActivity;
 	private Stack<WeakReference<Activity>> taskStack=new Stack<WeakReference<Activity>>();
 	

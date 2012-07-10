@@ -553,4 +553,8 @@ public class BasePreferenceActivity extends PreferenceActivity{
 	public boolean isDebugMode() {
 		return proxycContext.isDebugMode();
 	}
+
+	public String getAppVersion(String uri) {
+		return proxycContext.getAppVersion(uri);
+	}
 }

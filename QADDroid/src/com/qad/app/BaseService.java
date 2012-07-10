@@ -29,6 +29,10 @@ public abstract class BaseService extends Service {
 
 	private ContextTool mTool;
 
+	public String getAppVersion(String uri) {
+		return mTool.getAppVersion(uri);
+	}
+
 	private SparseArray<Notification> mManagedNotifications;
 
 	private NotificationManager notificationManager;

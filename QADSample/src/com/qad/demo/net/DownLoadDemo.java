@@ -19,7 +19,7 @@ import com.qad.service.DownloadService;
 
 public class DownLoadDemo extends BaseActivity {
 	String[] downUrls=new String[]{
-			"http://202.107.35.126:8011/main_setup.exe",
+			"http://42.duote.net/vagaas.zip",
 			"http://xiazai.xiazaiba.com/Soft/9/7z_9.25.00_XiaZaiBa.exe"
 	};
 	String[] targetPaths=new String[]{
@@ -37,6 +37,12 @@ public class DownLoadDemo extends BaseActivity {
 		ProgressBar progressBar;
 		@InjectView(id=id.progress_text)
 		TextView progressText;
+		
+		@Override
+		protected void onEnqueue(String downloadUrl, String targetPath,
+				Context context) {
+			testLog("enqueue:"+downloadUrl);
+		}
 		
 		@Override
 		protected void onNewDownload(String downloadUrl, String targetPath,
@@ -67,6 +73,12 @@ public class DownLoadDemo extends BaseActivity {
 		root.setOrientation(LinearLayout.VERTICAL);
 		setContentView(root);
 		registerManagedReceiver(new TrashDownloadReceiver());
+		for(int i=0;i<downUrls.length;i++)
+		{
+			File targetFile=new File(Environment.getExternalStorageDirectory(),targetPaths[i]);
+			DownloadService.start(this, downUrls[i], targetFile.getAbsolutePath(), null);
+		}
+		//duplicate request enqueue will be ignore
 		for(int i=0;i<downUrls.length;i++)
 		{
 			File targetFile=new File(Environment.getExternalStorageDirectory(),targetPaths[i]);

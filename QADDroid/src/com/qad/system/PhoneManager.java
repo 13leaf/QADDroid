@@ -4,10 +4,13 @@ import java.lang.ref.WeakReference;
 
 import android.content.Context;
 
+import com.qad.system.adapter.BatteryAdapter;
 import com.qad.system.adapter.NetWorkAdapter;
 import com.qad.system.adapter.SDCardAdapter;
+import com.qad.system.listener.BatteryListener;
 import com.qad.system.listener.NetworkListioner;
 import com.qad.system.listener.SDCardListioner;
+import com.qad.system.receiver.BatteryReceiver;
 import com.qad.system.receiver.NetworkReceiver;
 import com.qad.system.receiver.SDCardReceiver;
 
@@ -29,6 +32,9 @@ public class PhoneManager{
 	//
 	private NetworkReceiver networkReceiver;
 	private NetWorkAdapter netWorkAdapter;
+	
+	private BatteryReceiver batteryReceiver;
+	private BatteryAdapter batteryAdapter=new BatteryAdapter();
 	
 	private WeakReference<Context> weakContext;
 	
@@ -59,6 +65,9 @@ public class PhoneManager{
 		networkReceiver=new NetworkReceiver(context);
 		netWorkAdapter=new NetWorkAdapter(context);
 		networkReceiver.addNetworkListioner(netWorkAdapter);
+		
+		batteryReceiver=new BatteryReceiver(context);
+		batteryReceiver.addOnBatteryChangeListener(batteryAdapter);
 		
 		info=new PhoneInfo(context);
 	}
@@ -126,6 +135,7 @@ public class PhoneManager{
 		if(context!=null){
 			context.unregisterReceiver(sdCardReceiver);
 			context.unregisterReceiver(networkReceiver);
+			context.unregisterReceiver(batteryReceiver);
 		}
 	}
 
@@ -135,6 +145,58 @@ public class PhoneManager{
 
 	public boolean isConnectionFast() {
 		return netWorkAdapter.isConnectionFast();
+	}
+
+	public void addOnBatteryChangeListener(BatteryListener listener) {
+		batteryReceiver.addOnBatteryChangeListener(listener);
+	}
+
+	public void removeOnBatteryChangeListener(BatteryListener listener) {
+		batteryReceiver.removeOnBatteryChangeListener(listener);
+	}
+
+	public int getBatteryStatus() {
+		return batteryAdapter.getBatteryStatus();
+	}
+
+	public boolean isBatteryLow() {
+		return batteryAdapter.isBatteryLow();
+	}
+
+	public int getBatteryHealth() {
+		return batteryAdapter.getBatteryHealth();
+	}
+
+	public int getBatteryLevel() {
+		return batteryAdapter.getBatteryLevel();
+	}
+
+	public int getBatteryPlugged() {
+		return batteryAdapter.getBatteryPlugged();
+	}
+
+	public boolean isBatteryPresent() {
+		return batteryAdapter.isBatteryPresent();
+	}
+
+	public int getBatteryMax() {
+		return batteryAdapter.getBatteryMax();
+	}
+
+	public String getBatteryTechnology() {
+		return batteryAdapter.getBatteryTechnology();
+	}
+
+	public int getBatteryTemperature() {
+		return batteryAdapter.getBatteryTemperature();
+	}
+
+	public int getBatteryVoltage() {
+		return batteryAdapter.getBatteryVoltage();
+	}
+
+	public boolean isScreenOn() {
+		return info.isScreenOn();
 	}
 
 }

@@ -580,4 +580,8 @@ public class BaseActivity extends Activity{
 	public boolean isDebugMode() {
 		return proxycContext.isDebugMode();
 	}
+
+	public String getAppVersion(String uri) {
+		return proxycContext.getAppVersion(uri);
+	}
 }

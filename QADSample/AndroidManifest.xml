@@ -65,7 +65,7 @@
                 <category android:name="com.qad.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-                <activity
+        <activity
             android:name=".group.MasterDemo"
             android:label="Page/4.MasterView" >
             <intent-filter>
@@ -122,7 +122,6 @@
                 <category android:name="com.qad.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name=".loader.Loader1"
             android:label="Loader/1.ImageLoader" >
@@ -168,7 +167,24 @@
                 <category android:name="com.qad.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        
+        <activity
+            android:name=".system.PhoneInfo1"
+            android:label="System/1.PhoneInfo" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.qad.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".system.PhoneInfo2"
+            android:label="System/1.PhoneListener" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.qad.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".net.DownLoadDemo"
             android:label="Net/DownloadService" >
@@ -178,12 +194,11 @@
                 <category android:name="com.qad.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        
+
         <service android:name="com.qad.service.DownloadService" />
-        
+
         <activity android:name=".xml.Parser" />
         <activity android:name=".SafeDialogOperation" />
-
     </application>
 
 </manifest>

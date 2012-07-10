@@ -138,4 +138,8 @@ public class BaseContext {
 	public boolean isDebugMode() {
 		return tool.isDebugMode();
 	}
+
+	public String getAppVersion(String uri) {
+		return tool.getAppVersion(uri);
+	}
 }

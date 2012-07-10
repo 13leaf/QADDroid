@@ -14,8 +14,11 @@ import android.content.IntentFilter;
  */
 public class DownloadReceiver extends BaseBroadcastReceiver {
 
+	Intent recevedIntent;
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		recevedIntent=intent;
 		String action = intent.getAction();
 		//
 		if (DownloadService.ACTION_PUBLISH_PROGRESS.equals(action)) {
@@ -29,7 +32,27 @@ public class DownloadReceiver extends BaseBroadcastReceiver {
 		} else if (DownloadService.ACTION_DOWNLOAD_DONE.equals(action)) {
 			onDownloadDone(intent.getBooleanExtra(
 					DownloadService.EXTRA_DOWNLOAD_RESULT, false), context);
+		}else if(DownloadService.ACTION_ENQUEUE.equals(action)){
+			onEnqueue(
+					intent.getStringExtra(DownloadService.EXTRA_DOWNLOAD_URL), 
+					intent.getStringExtra(DownloadService.EXTRA_TARGET_PATH), 
+					context);
 		}
+	}
+	
+	protected Intent getRecevedIntent() {
+		return recevedIntent;
+	}
+	
+	/**
+	 * 下载请求已被接受
+	 * @param downloadUrl
+	 * @param targetPath
+	 * @param context
+	 */
+	protected void onEnqueue(String downloadUrl,String targetPath,Context context)
+	{
+		
 	}
 
 	/**
@@ -67,6 +90,7 @@ public class DownloadReceiver extends BaseBroadcastReceiver {
 		filter.addAction(DownloadService.ACTION_NEW_DOWNLOAD);
 		filter.addAction(DownloadService.ACTION_PUBLISH_PROGRESS);
 		filter.addAction(DownloadService.ACTION_DOWNLOAD_DONE);
+		filter.addAction(DownloadService.ACTION_ENQUEUE);
 		return filter;
 	}
 

@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 /**
@@ -58,6 +59,27 @@ public class ContextTool {
 		}else {
 			errorLog("context not availiable in ContextTool");
 			return false;
+		}
+	}
+	
+	/**
+	 * 返回null表示该app没有安装
+	 * @param uri
+	 * @return
+	 */
+	public String getAppVersion(String uri){
+		Context mContext = contextWrapper.get();
+		if (mContext != null) {
+			PackageManager pm = mContext.getPackageManager();
+			try {
+				PackageInfo info=pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+				return info.versionName;
+			} catch (PackageManager.NameNotFoundException e) {
+				return null;
+			}
+		}else {
+			errorLog("context not availiable in ContextTool");
+			return null;
 		}
 	}
 	

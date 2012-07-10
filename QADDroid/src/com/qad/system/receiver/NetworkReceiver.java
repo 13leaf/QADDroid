@@ -17,7 +17,8 @@ import com.qad.system.listener.NetworkListioner;
  */
 public class NetworkReceiver extends AbstractReceiver {
 	
-	private LinkedList<NetworkListioner> listioners=new LinkedList<NetworkListioner>();
+	private final LinkedList<NetworkListioner> listioners=new LinkedList<NetworkListioner>();
+	private final Object lock=new Object();
 	
 	public NetworkReceiver(Context context)
 	{
@@ -38,13 +39,17 @@ public class NetworkReceiver extends AbstractReceiver {
 	
 	public void addNetworkListioner(NetworkListioner listioner)
 	{
-		if(!listioners.contains(listioner))
-			listioners.add(listioner);
+		synchronized (lock) {
+			if(!listioners.contains(listioner))
+				listioners.add(listioner);
+		}
 	}
 	
 	public void removeNetworkListioner(NetworkListioner listioner)
 	{
-		listioners.remove(listioner);
+		synchronized (lock) {
+			listioners.remove(listioner);
+		}
 	}
 
 
@@ -53,16 +58,18 @@ public class NetworkReceiver extends AbstractReceiver {
 		NetworkInfo affectedNetworkInfo=
 				intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
 		boolean disconnect=!affectedNetworkInfo.isConnected();
-		if(disconnect){
-			for(NetworkListioner listioner:listioners)
-				listioner.onDisconnected(affectedNetworkInfo);
-		}else{
-			if(affectedNetworkInfo.getType()==ConnectivityManager.TYPE_WIFI){
+		synchronized (lock) {
+			if(disconnect){
 				for(NetworkListioner listioner:listioners)
-					listioner.onWifiConnected(affectedNetworkInfo);
-			}else if(affectedNetworkInfo.getType()==ConnectivityManager.TYPE_MOBILE){
-				for(NetworkListioner listioner:listioners)
-					listioner.onMobileConnected(affectedNetworkInfo);
+					listioner.onDisconnected(affectedNetworkInfo);
+			}else{
+				if(affectedNetworkInfo.getType()==ConnectivityManager.TYPE_WIFI){
+					for(NetworkListioner listioner:listioners)
+						listioner.onWifiConnected(affectedNetworkInfo);
+				}else if(affectedNetworkInfo.getType()==ConnectivityManager.TYPE_MOBILE){
+					for(NetworkListioner listioner:listioners)
+						listioner.onMobileConnected(affectedNetworkInfo);
+				}
 			}
 		}
 	}

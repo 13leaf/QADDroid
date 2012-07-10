@@ -10,7 +10,8 @@ import com.qad.system.listener.SDCardListioner;
 
 public class SDCardReceiver extends AbstractReceiver {
 
-	private LinkedList<SDCardListioner> listioners=new LinkedList<SDCardListioner>();
+	private final LinkedList<SDCardListioner> listioners=new LinkedList<SDCardListioner>();
+	private final Object lock=new Object();
 	
 	public SDCardReceiver(Context context) {
 		super(context);
@@ -32,13 +33,17 @@ public class SDCardReceiver extends AbstractReceiver {
 	
 	public void addOnSDCardListioner(SDCardListioner listioner)
 	{
-		if(!listioners.contains(listioner))
-			listioners.add(listioner);
+		synchronized (lock) {
+			if(!listioners.contains(listioner))
+				listioners.add(listioner);
+		}
 	}
 	
 	public void removeOnSDCardListioner(SDCardListioner listioner)
 	{
-		listioners.remove(listioner);
+		synchronized (lock) {
+			listioners.remove(listioner);
+		}
 	}
 
 	/**
@@ -51,15 +56,17 @@ public class SDCardReceiver extends AbstractReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action=intent.getAction();
-		if(action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED))
-		{
-			for(SDCardListioner listioner:listioners)
-				listioner.onSDCardMounted();
-		}else if(action.equals(Intent.ACTION_MEDIA_SHARED) || action.equals(Intent.ACTION_MEDIA_REMOVED))
-		{
-			//被USB共享或者被拔出
-			for(SDCardListioner listioner:listioners)
-				listioner.onSDCardRemoved();
+		synchronized (lock) {
+			if(action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED))
+			{
+				for(SDCardListioner listioner:listioners)
+					listioner.onSDCardMounted();
+			}else if(action.equals(Intent.ACTION_MEDIA_SHARED) || action.equals(Intent.ACTION_MEDIA_REMOVED))
+			{
+				//被USB共享或者被拔出
+				for(SDCardListioner listioner:listioners)
+					listioner.onSDCardRemoved();
+			}
 		}
 	}
 

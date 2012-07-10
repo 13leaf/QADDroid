@@ -1,0 +1,6 @@
+QADDroid\bin\**\*
+QADDroid\gen\**\*
+QADSample\bin\**\*
+QADSample\gen\**\*
+QADTest\bin\**\*\*
+QADTest\gen\**\*\*

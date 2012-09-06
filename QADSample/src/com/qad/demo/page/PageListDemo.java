@@ -8,8 +8,8 @@ import android.widget.ArrayAdapter;
 
 import com.qad.app.BaseActivity;
 import com.qad.demo.R;
-import com.qad.form.SimpleAsyncLoader;
 import com.qad.form.SimpleLoadContent;
+import com.qad.form.SimpleAsyncLoader;
 import com.qad.view.PageListView;
 import com.qad.view.PageListView.PageAdapter;
 
@@ -22,14 +22,6 @@ public class PageListDemo extends BaseActivity{
 		super.onCreate(savedInstanceState);
 		
 		MockPageListLoader listLoader=new MockPageListLoader();
-		listLoader.setProgressDialog(getDefaultProgressDialog());//开启progressDialog显示
-//		listLoader.setProgressDialog(null);
-		
-//		PageListView listView=new PageListView(this, listLoader.getPager(),PageListView.MANUAL_MODE);//set show flag
-//		listView.loadButton="加载新闻";listView.loadErrorMsg="新闻加载失败";listView.loadingMsg="加载新闻中...";
-//		listView.setAdapter(new MockListAdapter(this, android.R.layout.simple_list_item_1));
-//		setContentView(listView);
-		
 		//create by xml
 		setContentView(R.layout.pagelist_demo);
 		listView=(PageListView) findViewById(R.id.pageListView);
@@ -56,7 +48,6 @@ class MockListAdapter extends ArrayAdapter<String> implements PageAdapter<Simple
 
 class MockPageListLoader extends SimpleAsyncLoader<ArrayList<String>>
 {
-	
 	@Override
 	public SimpleLoadContent<ArrayList<String>> asyncLoadPage(int pageNo, int pageSize)
 			throws Exception {

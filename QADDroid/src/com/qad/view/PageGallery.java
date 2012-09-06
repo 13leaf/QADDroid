@@ -10,7 +10,7 @@ import android.widget.Gallery;
  * 实现了一页一页平滑翻动(不带flying)的画廊。<br>
  * 重写了onFling导致的Gallery翻页过快问题。
  * @author 13leaf
- * 
+ * @deprecated 使用ViewPager替代
  */
 public class PageGallery extends Gallery {
 

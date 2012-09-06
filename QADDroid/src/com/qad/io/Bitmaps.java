@@ -5,12 +5,14 @@ import java.io.InputStream;
 
 import com.qad.lang.Streams;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Shader.TileMode;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
+import android.os.Build;
 
 public class Bitmaps {
 
@@ -108,14 +110,14 @@ public class Bitmaps {
 	{
 		Bitmap original=BitmapFactory.decodeResource(res, originalId);
 		if(scaledHeight==0 || original.getHeight()==scaledHeight) {
-			BitmapDrawable drawable= new BitmapDrawable(original);
+			BitmapDrawable drawable= new BitmapDrawable(res,original);
 			drawable.setTileModeX(TileMode.REPEAT);return drawable;
 		}
 		Bitmap scaled=Bitmap.createScaledBitmap(original, original.getWidth(),scaledHeight,true);
 		//release original
 		original.recycle();
 		original=null;
-		BitmapDrawable drawable=new BitmapDrawable(scaled);
+		BitmapDrawable drawable=new BitmapDrawable(res,scaled);
 		drawable.setTileModeX(TileMode.REPEAT);
 		return drawable;
 	}
@@ -127,8 +129,14 @@ public class Bitmaps {
 	 * @param height
 	 * @return
 	 */
+	@SuppressLint("NewApi")
 	public static Bitmap extractThumbnail(Bitmap source,int width,int height)
 	{
-		return ThumbnailUtils.extractThumbnail(source, width, height);
+		if(Build.VERSION.SDK_INT>7)
+			return ThumbnailUtils.extractThumbnail(source, width, height);
+		else
+		{
+			return Bitmap.createBitmap(source, 0, 0, width, height);
+		}
 	}
 }

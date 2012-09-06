@@ -3,13 +3,11 @@ package com.qad.form;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
-import com.qad.view.ProgressAsyncTask;
-
 /**
  * 实现一个简单的异步加载PageLoader。通常情况下，你只需要实现asyncLoadPage抽象方法即可。<br>
  * 若希望在载入过程中显示等待对话框，那么可以调用setProgressDialog()。
  * @author 13leaf
- * @deprecated 使用AsyncTask存在一些问题。
+ * @deprecated 使用AsyncTask和ProgressDialog存在一些问题。
  */
 public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoadContent<Content>> {
 	
@@ -42,12 +40,7 @@ public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoa
 	 */
 	@Override
 	public boolean loadPage(int pageNo, int pageSize) {
-		if(mProgressDialog==null)
-		{
-			new MyAsyncLoadTask().execute(pageNo,pageSize);
-		}else {
-			new MyAsyncLoadTask2(mProgressDialog).execute(pageNo,pageSize);
-		}
+		new MyAsyncLoadTask().execute(pageNo,pageSize);
 		return false;
 	}
 	
@@ -87,42 +80,9 @@ public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoa
 		int loadNo;
 		int loadPageSize;
 		
-		@Override
-		protected SimpleLoadContent<Content> doInBackground(Integer... params) {
-			loadNo=params[0];
-			loadPageSize=params[1];
-			
-			try {
-				return asyncLoadPage(loadNo, loadPageSize);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-		
-		protected void onPostExecute(SimpleLoadContent<Content> result) {
-			if(result==null)
-			{
-				mPageManager.notifyPageLoad(LOAD_FAIL,
-						loadNo, mPageManager.getPageSum(), 
-						null);
-			}else {
-				mPageManager.notifyPageLoad(LOAD_COMPLETE,
-						loadNo, result.getPageSum(), 
-						result);
-			}
-		}
-		
-		
-	}
-	
-	private final class MyAsyncLoadTask2 extends ProgressAsyncTask<Integer,Void,SimpleLoadContent<Content>>
-	{
-		int loadNo;
-		int loadPageSize;
-		
-		public MyAsyncLoadTask2(ProgressDialog progressDialog) {
-			super(progressDialog);
+		public MyAsyncLoadTask() {
+			if(mProgressDialog!=null)
+				mProgressDialog.show();
 		}
 		
 		@Override
@@ -139,7 +99,9 @@ public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoa
 		}
 		
 		protected void onPostExecute(SimpleLoadContent<Content> result) {
-			super.onPostExecute(result);//通知等待对话框的消失
+			//通知等待对话框的消失
+			if(mProgressDialog!=null)
+				mProgressDialog.dismiss();
 			
 			if(result==null)
 			{
@@ -151,6 +113,7 @@ public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoa
 						loadNo, result.getPageSum(), 
 						result);
 			}
+			
 		}
 		
 		@Override
@@ -160,6 +123,4 @@ public abstract class SimpleAsyncLoader<Content> implements PageLoader<SimpleLoa
 			mPageManager.notifyPageLoad(LOAD_FAIL, loadNo, mPageManager.getPageSum(), null);
 		}
 	}
-	
-
 }

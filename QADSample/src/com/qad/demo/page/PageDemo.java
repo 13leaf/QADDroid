@@ -2,6 +2,7 @@ package com.qad.demo.page;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -11,13 +12,10 @@ import com.qad.demo.tool.DemoTools;
 import com.qad.form.PageLoader;
 import com.qad.form.PageManager;
 import com.qad.form.PageManager.PageLoadListener;
-import com.qad.form.SimpleAsyncLoader;
-import com.qad.form.SimpleLoadContent;
-import com.qad.view.ProgressAsyncTask;
 
 public class PageDemo extends BaseActivity {
 	
-private MockPageLoader2 pageLoader;
+private MockPageLoader pageLoader;
 
 private TextView txtLoad;
 
@@ -29,13 +27,11 @@ private TextView txtLoad;
 		
 		setContentView(R.layout.page_bind_demo);
 		
-		pageLoader=new MockPageLoader2();
+		pageLoader=new MockPageLoader(this);
 		ProgressDialog mProgressDialog=new ProgressDialog(this);
 		mProgressDialog.setMessage("载入中...请等待");
-		pageLoader.setProgressDialog(mProgressDialog);
 		
-		
-		PageManager<SimpleLoadContent<String>> pager= pageLoader.getPager();//得到了绑定的PageManager，便无须关心翻页和加载的问题了。
+		PageManager<String> pager= pageLoader.getPager();//得到了绑定的PageManager，便无须关心翻页和加载的问题了。
 		pager.bindPrevious(findViewById(R.id.btnPre));//将翻页操作与按钮进行简单的绑定
 		pager.bindNext(findViewById(R.id.btnNext));
 		
@@ -96,16 +92,19 @@ class MockPageLoader implements PageLoader<String>{
 		return mPageManager;
 	}
 	
-	class MyLoadTask extends ProgressAsyncTask<Void,Void,Void>
+	class MyLoadTask extends AsyncTask<Void,Void,Void>
 	{
 		private int loadNo;
 		
 		private int loadPageSize;
+		
+		ProgressDialog dialog;
 
 		public MyLoadTask(ProgressDialog progressDialog,int loadNo,int loadPageSize) {
-			super(progressDialog);
 			this.loadNo=loadNo;
 			this.loadPageSize=loadPageSize;
+			this.dialog=progressDialog;
+			dialog.show();
 		}
 
 		@Override
@@ -121,7 +120,7 @@ class MockPageLoader implements PageLoader<String>{
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			
+			dialog.dismiss();
 			//此处来通知PageManager更新页状态信息。
 			mPageManager.notifyPageLoad((DemoTools.randomBoolean(5)?LOAD_COMPLETE:LOAD_FAIL)//以4:1的成功率来模拟加载
 					,loadNo , 20, getLoadContent());
@@ -134,28 +133,4 @@ class MockPageLoader implements PageLoader<String>{
 			(int)(Math.random()*1000);
 		}
 	}
-}
-
-
-class MockPageLoader2 extends SimpleAsyncLoader<String>
-{
-	@Override
-	public SimpleLoadContent<String> asyncLoadPage(int pageNo, int pageSize) throws Exception {
-		Thread.sleep(1000);
-		SimpleLoadContent<String> content=new SimpleLoadContent<String>();
-		content.setContent(
-				getLoadContent(pageNo, pageSize));
-		content.setPageSum(20);//这里的pageSum值应当动态载入
-		
-		return DemoTools.randomBoolean(5)?
-				content:null;
-	}
-	
-	private String getLoadContent(int loadNo,int loadPageSize)
-	{
-		return "loadNo:"+loadNo+",loadPageSize:"+loadPageSize+",loadState:"
-		+getPager().getLoadState()+",loadContent:"+
-		(int)(Math.random()*1000);
-	}
-	
 }

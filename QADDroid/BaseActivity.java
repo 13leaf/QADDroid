@@ -3,7 +3,6 @@ package com.qad.app;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.ActivityGroup;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Notification;
@@ -66,8 +65,7 @@ import com.qad.util.CloseBroadCastReceiver;
  * @author 13leaf
  *
  */
-public class BaseActivityGroup extends ActivityGroup {
-
+public class BaseActivity extends Activity{
 
 	private BaseContext proxycContext;
 	
@@ -78,7 +76,7 @@ public class BaseActivityGroup extends ActivityGroup {
 	/**
 	 * 简易访问本活动实例的指针
 	 */
-	protected BaseActivityGroup me;
+	protected Activity me;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -3,6 +3,7 @@ package com.qad.app;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.preference.PreferenceActivity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Notification;
@@ -14,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 import android.util.AndroidRuntimeException;
 import android.util.SparseArray;
 import android.view.View;
@@ -23,6 +23,10 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 
+import com.qad.annotation.InjectExtras;
+import com.qad.annotation.InjectResource;
+import com.qad.annotation.InjectSystemService;
+import com.qad.annotation.InjectView;
 import com.qad.debug.ViewServer;
 import com.qad.inject.ExtrasInjector;
 import com.qad.inject.PreferenceInjector;
@@ -34,11 +38,36 @@ import com.qad.util.ActivityTool.FinishListener;
 import com.qad.util.CloseBroadCastReceiver;
 
 /**
- * 
+ * BaseActivity作为Activity的基类提供了许多方便的特性。继承BaseActivity替代Activity会让编程更加简单。<br>
+ * BaseActivity的特性有如下一些:<br><ol>
+ * <li><b>Android字段注入。</b>可注入的内容有:View,Extra,Resource等。BaseActivity会通过侦听Activity的周期来恰当的进行注入值。一般情况下,<br>
+ * 当调用Activity.setContentView()时会出发View字段注入。当onCreate或onNewIntent时会产生Extra注入。仅当onCreate时才会产生资源注入。<br>
+ * 注入字段可为静态。若想手动注入,则可以调用XXXInjector.inject(xx,instance)。以下是一些典型用法:<br>
+ * '@{@link InjectView}(id=R.id.btn) Button button;<br>
+ * '@{@link InjectResource}(id=R.id.hello) String hello;<br>
+ * '@{@link InjectExtras}(name="EXTRA_SOMETHING") int something;<br>
+ * '@{@link InjectSystemService}(name=Context.LayoutInflator) LayoutInflator inflator;<br>
+ * <li><b>打印友好的</b>:例如showMessage()->Toast的短显示.showLongMessage()->Toast的长显示.<br>
+ * debugLog()->写入日志。该日志的Tag为当前Activity的类名称。</li>
+ * <li><b>简化跳转</b>:重写了startActivity的方法。这对于不包含Extra的本地Activity跳转十分有用。例如startActivity(Activity2.class)。<br></li>
+ * <li><b>其它工具</b>调用createShortCut()将为应用创建一个桌面图标。<br>
+ * 调用hideInput()可以强制关闭某个View，尤其是TextView的软键盘。<br>
+ * 调用showConfirmDialog(),showMessageDialog()可以方便的弹出对话框。<br>
+ * 调用setOnClickListener()可以方便的进行批量注册。<br>
+ * 调用getSpinnerAdapter()使用默认的ArrayAdapter包装传入的数组参数。<br>
+ * 调用getFinishListener()可以获得实现了点击事件的活动结束监听器。<br>
+ * 调用findViewByIdName(name)可以不通过编译器所生成的int型的id。而是通过id名称进行查找。例如<br>
+ * Button button=(Button)findViewById(R.id.button);//by int<br>
+ * Button button=(Button)findViewByIdName("button");//by string<br>
+ * </li>
+ * <li>仿照Dialog风格的Notification管理。可以使用onCreateNotification构建Notification,使用showNotification/cancelNotification来显示和取消通知。</li>
+ * <li>自动管理硬编码的BroadcastReceiver,在destroy时会自动unregister通过registerManagedReceiver注册的监听器。</li>
+ * </ol>
  * @author 13leaf
  *
  */
-public class BasePreferenceActivity extends PreferenceActivity{
+public class BasePreferenceActivity extends PreferenceActivity {
+
 
 	private BaseContext proxycContext;
 	
@@ -49,7 +78,7 @@ public class BasePreferenceActivity extends PreferenceActivity{
 	/**
 	 * 简易访问本活动实例的指针
 	 */
-	protected Activity me;
+	protected BasePreferenceActivity me;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

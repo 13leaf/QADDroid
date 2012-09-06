@@ -194,11 +194,17 @@
                 <category android:name="com.qad.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.WaterFall"
+            android:label="view/WaterFall" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.qad.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <service android:name="com.qad.service.DownloadService" />
-
-        <activity android:name=".xml.Parser" />
-        <activity android:name=".SafeDialogOperation" />
     </application>
 
 </manifest>

@@ -55,8 +55,12 @@ public class NetworkReceiver extends AbstractReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		NetworkInfo affectedNetworkInfo=
-				intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+		/* XXX 4.0文档中废除，理由如下
+		 * Since NetworkInfo can vary based on UID, applications should always obtain network information through getActiveNetworkInfo() or getAllNetworkInfo().
+		 * NetworkInfo affectedNetworkInfo=
+				intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);*/
+		ConnectivityManager manager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo affectedNetworkInfo=manager.getActiveNetworkInfo();
 		boolean disconnect=!affectedNetworkInfo.isConnected();
 		synchronized (lock) {
 			if(disconnect){

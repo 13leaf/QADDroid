@@ -300,7 +300,7 @@ class MyFallPageEntity implements PageEntity
 	
 }
 
-public class WaterFall extends BaseActivity implements PageLoader<PageEntity>{
+public class WaterFall extends BaseActivity implements PageLoader<ArrayList<FallEntry>>{
 
 
 	PictureFall customView;
@@ -332,7 +332,7 @@ public class WaterFall extends BaseActivity implements PageLoader<PageEntity>{
 			@Override
 			public void run() {
 				MyFallPageEntity myFallPageEntity=new MyFallPageEntity();
-				getPager().notifyPageLoad(LOAD_COMPLETE, pageNo,myFallPageEntity.getPageSum(), myFallPageEntity);
+				getPager().notifyPageLoad(LOAD_COMPLETE, pageNo,myFallPageEntity.getPageSum(), (ArrayList<FallEntry>) myFallPageEntity.getData());
 				showMessage("load "+pageNo);
 			}
 		}, 1*1000);
@@ -376,9 +376,9 @@ public class WaterFall extends BaseActivity implements PageLoader<PageEntity>{
 		return super.onOptionsItemSelected(item);
 	}
 
-	PageManager<PageEntity> pager=new PageManager<PageEntity>(this,20);
+	PageManager<ArrayList<FallEntry>> pager=new PageManager<ArrayList<FallEntry>>(this,20);
 	@Override
-	public PageManager<PageEntity> getPager() {
+	public PageManager<ArrayList<FallEntry>> getPager() {
 		return pager;
 	}
 }

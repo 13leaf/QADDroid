@@ -17,13 +17,12 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.os.Environment;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.qad.form.PageEntity;
 import com.qad.form.PageLoadAdapter;
 import com.qad.form.PageManager;
 import com.qad.form.PageManager.PageLoadListener;
@@ -31,6 +30,7 @@ import com.qad.loader.LoadContext;
 import com.qad.loader.LoadListener;
 import com.qad.loader.QueueLoader;
 import com.qad.loader.service.LoadServices;
+import com.qad.util.WLog;
 
 public class PictureFallInternal extends View {
 	// properties
@@ -49,6 +49,7 @@ public class PictureFallInternal extends View {
 	 * 当前的滚动窗口并不是实际滚动区域，而是一个大于区域的逻辑。该值与缓存策略有关
 	 */
 	private int logicalWindowSize = 30;
+	private LinkedList<FallEntry> outEntries = new LinkedList<FallEntry>();
 
 	private int mHeight;
 	private int parentHeight;
@@ -63,8 +64,10 @@ public class PictureFallInternal extends View {
 	private Bitmap defaultFall;
 	private Bitmap errorFall;
 
-	private PageManager<PageEntity> pageManager;
+	private PageManager<ArrayList<FallEntry>> pageManager;
 	private String loadErrorMsg = "加载失败...";
+
+	private WLog logger = WLog.getMyLogger(PictureFall.class);
 
 	public PictureFallInternal(Context context) {
 		super(context);
@@ -96,6 +99,12 @@ public class PictureFallInternal extends View {
 		selectedPaint.setColorFilter(new PorterDuffColorFilter(Color.argb(0, 0,
 				0, 0), Mode.SRC_ATOP));// transparent default
 
+		xpadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+				xpadding, getResources().getDisplayMetrics());
+		ypadding = xpadding;
+		borderWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+				borderWidth, getResources().getDisplayMetrics());
+
 	}
 
 	public void setOnFallClickedListener(onFallClikedListener listener) {
@@ -120,8 +129,7 @@ public class PictureFallInternal extends View {
 		@SuppressWarnings("unchecked")
 		public void onPageLoadComplete(int loadPageNo, int pageSum,
 				Object content) {
-			PageEntity entity = (PageEntity) content;
-			addEntries((ArrayList<FallEntry>) entity.getData());
+			addEntries((ArrayList<FallEntry>) content);
 		}
 
 		public void onPageLoadFail(int loadPageNo, int pageSum) {
@@ -130,7 +138,7 @@ public class PictureFallInternal extends View {
 		}
 	};
 
-	public void bindPageManager(PageManager<PageEntity> manager) {
+	public void bindPageManager(PageManager<ArrayList<FallEntry>> manager) {
 		if (pageManager == manager)
 			return;
 		this.pageManager = manager;
@@ -142,7 +150,7 @@ public class PictureFallInternal extends View {
 		}
 	}
 
-	public PageManager<PageEntity> getPageManager() {
+	public PageManager<ArrayList<FallEntry>> getPageManager() {
 		return pageManager;
 	}
 
@@ -153,7 +161,7 @@ public class PictureFallInternal extends View {
 		// recycle out window
 		if (entries == null)
 			return;
-		LinkedList<FallEntry> outEntries = getOutWindowEntryList(t);
+		outEntries = getOutWindowEntryList(t);
 		for (FallEntry fallEntry : outEntries) {
 			if (fallEntry.bitmap != null)
 				fallEntry.bitmap.recycle();
@@ -164,23 +172,25 @@ public class PictureFallInternal extends View {
 				&& !pageManager.isLast() && t + parentHeight + fix > mHeight) {
 			pageManager.next();
 		}
-		// Log.d("13leaf", "recyle "+outEntries.size());
+		logger.testLog("recycle "+outEntries.size());
 	}
 
 	private LoadListener listener = new LoadListener() {
 		@Override
 		public void loadFail(LoadContext<?, ?, ?> context) {
 			FallEntry entry = (FallEntry) context.getTarget();
-			entry.loadError = true;
-			invalidate();
+			if (!entry.loadError) {
+				entry.loadError = true;
+				invalidate();
+			}
 		}
 
 		@Override
 		public void loadComplete(LoadContext<?, ?, ?> context) {
 			FallEntry entry = (FallEntry) context.getTarget();
 			Bitmap result = (Bitmap) context.getResult();
-			if (!visibleAtWindow(entry)) {
-				Log.d("13leaf", "ignore entry " + entry.top + "," + scrollY
+			if (outEntries != null && outEntries.contains(entry)) {
+				logger.testLog("ignore entry " + entry.top + "," + scrollY
 						+ "-" + (scrollY + parentHeight));
 				return;
 			}
@@ -213,16 +223,7 @@ public class PictureFallInternal extends View {
 		listener = null;
 		loaders = null;
 
-		if (entries != null) {
-			for (ArrayList<FallEntry> col : entries)
-				for (FallEntry entry : col) {
-					if (entry.bitmap != null)
-						entry.bitmap.recycle();
-					entry.bitmap = null;
-				}
-			entries.clear();
-			entries = null;
-		}
+		removeAllEntries();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -257,6 +258,7 @@ public class PictureFallInternal extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+		if(entries==null) return;
 		for (int col = 0; col < entries.size(); col++) {
 			canvas.save();
 			canvas.translate(regularWidth * col + xpadding * (col + 1),
@@ -273,10 +275,12 @@ public class PictureFallInternal extends View {
 					entryBound.bottom -= borderWidth / 2;
 					canvas.drawBitmap(fallEntry.bitmap, bmpBound, entryBound,
 							fallEntry.isSelected ? selectedPaint : null);
-				} else if (fallEntry.loadError && errorFall != null) {
-					bmpBound.set(0, 0, errorFall.getWidth(),
-							errorFall.getHeight());
-					canvas.drawBitmap(errorFall, bmpBound, entryBound, null);
+				} else if (fallEntry.loadError) {
+					if (errorFall != null) {
+						bmpBound.set(0, 0, errorFall.getWidth(),
+								errorFall.getHeight());
+						canvas.drawBitmap(errorFall, bmpBound, entryBound, null);
+					}
 				} else {
 					if (visibleAtWindow(fallEntry) && loaders != null)
 						loaders[col].startLoading(fallEntry.url, fallEntry);
@@ -298,6 +302,7 @@ public class PictureFallInternal extends View {
 
 	/**
 	 * 子类可以实现此处来实现进一步的元素绘制
+	 * 
 	 * @param canvas
 	 * @param fallEntry
 	 */
@@ -306,6 +311,7 @@ public class PictureFallInternal extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if(entries==null) return super.onTouchEvent(event);
 		float x = event.getX(), y = event.getY();
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
@@ -361,6 +367,21 @@ public class PictureFallInternal extends View {
 
 	public ArrayList<ArrayList<FallEntry>> getEntries() {
 		return entries;
+	}
+	
+	public void removeAllEntries()
+	{
+		if(entries != null){
+			for (ArrayList<FallEntry> col:entries) {
+				for (FallEntry fallEntry : col) {
+					if(fallEntry.holdBitmap()) fallEntry.bitmap.recycle();
+					fallEntry.bitmap=null;
+				}
+			}
+			entries.clear();
+			entries=null;
+		}
+		requestLayout();
 	}
 
 	public void addEntries(ArrayList<FallEntry> all) {
@@ -465,7 +486,12 @@ public class PictureFallInternal extends View {
 		if (selectRow < 0) {
 			selectRow = -selectRow - 2;// 应该是插入点的前面一个
 		}
-		return getEntry(selectCol, selectRow);
+		if(selectRow>=0 && selectCol>=0 &&	//上界
+				selectCol<numColumn && selectRow<entries.get(selectCol).size()){//下界
+			return getEntry(selectCol, selectRow);
+		}else {
+			return null;
+		}
 	}
 
 	/**
@@ -496,7 +522,6 @@ public class PictureFallInternal extends View {
 				maxEntrySize = entries.get(i).size();
 		}
 
-		boolean switcher = true;
 		int step = 1;
 		int[][] bound = new int[numColumn][2];// 每列的上下界
 		for (int i = 0; i < numColumn; i++) {
@@ -504,20 +529,20 @@ public class PictureFallInternal extends View {
 			bound[i][1] = entries.get(i).size() - 1;
 		}
 
-		while (calcedCount < logicalWindowSize || step >= maxEntrySize) {
+		while (calcedCount < logicalWindowSize && step <= maxEntrySize) {
 			for (int i = 0; i < numColumn; i++) {
-				int targetIndex = switcher ? initialIndex[i] + step
-						: initialIndex[i] - step;
-				if (targetIndex > 0 && targetIndex < entries.get(i).size()) {
-					if (switcher)
-						bound[i][1] = targetIndex;
-					else
-						bound[i][0] = targetIndex;
+				int upIndex=initialIndex[i]+step;
+				int downIndex=initialIndex[i]-step;
+				if(downIndex>=0){
+					bound[i][0]=downIndex;
+					calcedCount++;
+				}
+				if(upIndex<entries.get(i).size()) {
+					bound[i][1]=upIndex;
 					calcedCount++;
 				}
 			}
 			step++;
-			switcher = !switcher;
 		}
 
 		LinkedList<FallEntry> out = new LinkedList<FallEntry>();
@@ -556,7 +581,7 @@ public class PictureFallInternal extends View {
 		for (int i = 0; i < arr.size(); i++) {
 			int selectCol = minColIndex(fix);
 			splitArray.get(selectCol).add(arr.get(i));
-			fix[selectCol] += arr.get(i).height;
+			fix[selectCol] += arr.get(i).height+ypadding;
 		}
 		// convert
 		ArrayList<ArrayList<FallEntry>> out = new ArrayList<ArrayList<FallEntry>>();

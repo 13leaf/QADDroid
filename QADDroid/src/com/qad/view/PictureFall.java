@@ -3,14 +3,13 @@ package com.qad.view;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.qad.form.PageEntity;
-import com.qad.form.PageManager;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ScrollView;
+
+import com.qad.form.PageManager;
 
 /**
  * <p>PictureFall实现了一个瀑布图片流组件。</p>
@@ -64,11 +63,11 @@ public class PictureFall extends ScrollView{
 		return super.onTouchEvent(ev);
 	}
 	
-	public void bindPageManager(PageManager<PageEntity> manager) {
+	public void bindPageManager(PageManager<ArrayList<FallEntry>> manager) {
 		internal.bindPageManager(manager);
 	}
 
-	public PageManager<PageEntity> getPageManager() {
+	public PageManager<ArrayList<FallEntry>> getPageManager() {
 		return internal.getPageManager();
 	}
 
@@ -77,6 +76,9 @@ public class PictureFall extends ScrollView{
 		internal.setBorderWidth(borderWidth);
 	}
 	
+	public void removeAllEntries(){
+		internal.removeAllEntries();
+	}
 
 	public void addEntries(ArrayList<FallEntry> all) {
 		internal.addEntries(all);

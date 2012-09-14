@@ -41,6 +41,8 @@ public  class PageListView extends ListView {
 	
 	protected View loadView;
 	
+	protected View triggerView;
+	
 	private boolean showFlag=true;//ViewSwitcher的标志位，true表示显示加载中,false表示显示加载按钮.
 	
 	private int mFlag=0;//选择的标志模式
@@ -182,7 +184,7 @@ public  class PageListView extends ListView {
 		mPageManager=pageManager;
 		mPageManager.addOnPageLoadListioner(new ListPageLoad());
 		//
-		mPageManager.bindNext(loadView);
+		mPageManager.bindNext(triggerView);
 		//
 		if(mFlag==AUTO_MODE)
 		{
@@ -238,6 +240,13 @@ public  class PageListView extends ListView {
 		loadSwitcher.addView(loadingView=initLoadingView());
 		
 		loadSwitcher.addView(loadView=initLoadView());
+		
+		if(triggerView==null)
+			triggerView=loadView;//by default
+	}
+	
+	public void setTriggerView(View triggerView) {
+		this.triggerView = triggerView;
 	}
 	
 	

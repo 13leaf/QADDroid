@@ -16,6 +16,10 @@ public enum RenderType {
 	 */
 	none,
 	/**
+	 * 查找该子对象来渲染
+	 */
+	object,
+	/**
 	 * 映射一个图片
 	 */
 	image,

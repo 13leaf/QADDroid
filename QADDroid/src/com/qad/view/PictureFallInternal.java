@@ -172,7 +172,7 @@ public class PictureFallInternal extends View {
 				&& !pageManager.isLast() && t + parentHeight + fix > mHeight) {
 			pageManager.next();
 		}
-		logger.testLog("recycle "+outEntries.size());
+		logger.testLog("recycle " + outEntries.size());
 	}
 
 	private LoadListener listener = new LoadListener() {
@@ -258,7 +258,8 @@ public class PictureFallInternal extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if(entries==null) return;
+		if (entries == null)
+			return;
 		for (int col = 0; col < entries.size(); col++) {
 			canvas.save();
 			canvas.translate(regularWidth * col + xpadding * (col + 1),
@@ -311,7 +312,8 @@ public class PictureFallInternal extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if(entries==null) return super.onTouchEvent(event);
+		if (entries == null)
+			return super.onTouchEvent(event);
 		float x = event.getX(), y = event.getY();
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
@@ -368,29 +370,29 @@ public class PictureFallInternal extends View {
 	public ArrayList<ArrayList<FallEntry>> getEntries() {
 		return entries;
 	}
-	
-	public void removeAllEntries()
-	{
-		if(entries != null){
-			for (ArrayList<FallEntry> col:entries) {
+
+	public void removeAllEntries() {
+		if (entries != null) {
+			for (ArrayList<FallEntry> col : entries) {
 				for (FallEntry fallEntry : col) {
-					if(fallEntry.holdBitmap()) fallEntry.bitmap.recycle();
-					fallEntry.bitmap=null;
+					if (fallEntry.holdBitmap())
+						fallEntry.bitmap.recycle();
+					fallEntry.bitmap = null;
 				}
 			}
 			entries.clear();
-			entries=null;
+			entries = null;
 		}
 		requestLayout();
 	}
 
 	public void addEntries(ArrayList<FallEntry> all) {
+		resizeEntries(all);
 		if (entries == null) {
 			entries = alignment(all, numColumn, score);
 		} else {
 			merge(entries, alignment(all, numColumn, score));
 		}
-		ensureEntries();
 		requestLayout();
 	}
 
@@ -398,13 +400,17 @@ public class PictureFallInternal extends View {
 		if (getVisibility() != View.VISIBLE || regularWidth == 0
 				|| entries == null)
 			return;
-		for (int col = 0; col < entries.size(); col++) {
-			int mTop = ypadding;
-			for (FallEntry entry : entries.get(col)) {
-				entry.scale(regularWidth);
-				entry.top = mTop;
-				mTop += entry.height + ypadding;
-			}
+		for (ArrayList<FallEntry> col:entries) {
+			resizeEntries(col);
+		}
+	}
+
+	private void resizeEntries(ArrayList<FallEntry> myEntries) {
+		int mTop = ypadding;
+		for (FallEntry entry : myEntries) {
+			entry.scale(regularWidth);
+			entry.top = mTop;
+			mTop += entry.height + ypadding;
 		}
 	}
 
@@ -486,10 +492,12 @@ public class PictureFallInternal extends View {
 		if (selectRow < 0) {
 			selectRow = -selectRow - 2;// 应该是插入点的前面一个
 		}
-		if(selectRow>=0 && selectCol>=0 &&	//上界
-				selectCol<numColumn && selectRow<entries.get(selectCol).size()){//下界
+		if (selectRow >= 0 && selectCol >= 0
+				&& // 上界
+				selectCol < numColumn
+				&& selectRow < entries.get(selectCol).size()) {// 下界
 			return getEntry(selectCol, selectRow);
-		}else {
+		} else {
 			return null;
 		}
 	}
@@ -531,14 +539,14 @@ public class PictureFallInternal extends View {
 
 		while (calcedCount < logicalWindowSize && step <= maxEntrySize) {
 			for (int i = 0; i < numColumn; i++) {
-				int upIndex=initialIndex[i]+step;
-				int downIndex=initialIndex[i]-step;
-				if(downIndex>=0){
-					bound[i][0]=downIndex;
+				int upIndex = initialIndex[i] + step;
+				int downIndex = initialIndex[i] - step;
+				if (downIndex >= 0) {
+					bound[i][0] = downIndex;
 					calcedCount++;
 				}
-				if(upIndex<entries.get(i).size()) {
-					bound[i][1]=upIndex;
+				if (upIndex < entries.get(i).size()) {
+					bound[i][1] = upIndex;
 					calcedCount++;
 				}
 			}
@@ -581,7 +589,7 @@ public class PictureFallInternal extends View {
 		for (int i = 0; i < arr.size(); i++) {
 			int selectCol = minColIndex(fix);
 			splitArray.get(selectCol).add(arr.get(i));
-			fix[selectCol] += arr.get(i).height+ypadding;
+			fix[selectCol] += arr.get(i).height + ypadding;
 		}
 		// convert
 		ArrayList<ArrayList<FallEntry>> out = new ArrayList<ArrayList<FallEntry>>();

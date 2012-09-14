@@ -22,6 +22,7 @@
     <!-- 保持不会锁屏,但是屏幕会变暗 -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK"/> -->
 
+	<uses-sdk android:targetSdkVersion="16" android:minSdkVersion="7"/>
     <application
         android:name=".QADApplication"
         android:debuggable="true"

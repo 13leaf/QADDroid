@@ -22,6 +22,7 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 	public PersistanceResourceService(File cacheDir,int requiredSize) {
 		super(cacheDir);
 		this.requiredSize=requiredSize;
+		logger.closeLogger();
 	}
 	
 	/**
@@ -67,7 +68,7 @@ public class PersistanceResourceService extends PersistanceService<Bitmap> {
 		try {
 			File cacheTarget=getCacheFile(loadKey);
 			Files.writeCompressedImage(cacheTarget, (Bitmap) instance);
-			logger.debugLog("save "+loadKey+" compress Image!");
+			logger.testLog("save "+loadKey+" compress Image!");
 		} catch (Exception e) {
 			logger.errorLog("Save Bitmap fail:"+loadKey);
 			e.printStackTrace();

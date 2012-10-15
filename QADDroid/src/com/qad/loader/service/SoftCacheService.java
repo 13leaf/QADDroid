@@ -14,6 +14,11 @@ public class SoftCacheService<T> extends BaseCacheLoadService<String,T>{
 
 	private Cache<T> cache=new Cache<T>(); 
 	
+	public SoftCacheService()
+	{
+		logger.closeLogger();
+	}
+	
 	@Override
 	public boolean onPreLoad(String key) {
 		return !TextUtils.isEmpty(key);
@@ -27,7 +32,7 @@ public class SoftCacheService<T> extends BaseCacheLoadService<String,T>{
 		if(result!=null)
 			logger.debugLog("load "+key+" from softCache ok");
 		else
-			logger.debugLog("load "+key+" from softCache fail");
+			logger.warnLog("load "+key+" from softCache fail");
 		return result;
 	}
 

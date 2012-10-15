@@ -15,6 +15,7 @@ import android.widget.RemoteViews;
  * 
  * @author 13leaf
  * 
+ * @deprecated 使用 NotificationCompat替代
  */
 @SuppressWarnings("unused")
 public class NotificationBuilder {

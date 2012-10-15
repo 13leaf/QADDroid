@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -20,11 +19,25 @@ import com.qad.loader.ImageLoader;
 import com.qad.loader.ImageLoader.ImageDisplayer;
 import com.qad.loader.LoadContext;
 import com.qad.util.ViewTool;
+import com.qad.util.WLog;
 
 public abstract class RenderEngine {
 
 	static EnumMap<RenderType, String> mapping = new EnumMap<RenderType, String>(
 			RenderType.class);
+	static EnumMap<RenderType, Class<?>> mappingType = new EnumMap<RenderType, Class<?>>(
+			RenderType.class);
+
+	static {
+		mappingType.put(RenderType.check, boolean.class);
+		mappingType.put(RenderType.hint, CharSequence.class);
+		mappingType.put(RenderType.numStar, int.class);
+		mappingType.put(RenderType.progress, int.class);
+		mappingType.put(RenderType.secondaryProgress, int.class);
+		mappingType.put(RenderType.text, CharSequence.class);
+		mappingType.put(RenderType.textColor, int.class);
+		mappingType.put(RenderType.visibility, int.class);
+	}
 
 	static {
 		mapping.put(RenderType.check, "setChecked");// boolean
@@ -38,6 +51,12 @@ public abstract class RenderEngine {
 	}
 
 	private static boolean cache = true;
+
+	private final static WLog logger = WLog.getMyLogger(RenderEngine.class);
+	
+	static{
+		logger.closeLogger();
+	}
 
 	/**
 	 * 开启Cache将会缓存view与object的映射关系。尤其会对adapterView有很显著的优化作用<br>
@@ -92,7 +111,7 @@ public abstract class RenderEngine {
 			mView = wrapper.getView().findViewById(id);
 		}
 		if (mView == null) {
-			Log.e("RenderEngine", "counl'd not find id " + field.getName());
+			logger.warnLog("counl'd not find id " + field.getName());
 		}
 		return mView;
 	}
@@ -108,6 +127,9 @@ public abstract class RenderEngine {
 	 */
 	private static String analyzeSetter(Class<?> providerDataType, Render render) {
 		String setter = null;
+		// 设置了setter则认为开启了custom
+		if (render != null && render.setter().length() != 0)
+			return render.setter();
 		RenderType type = (render == null ? RenderType.auto : render.type());
 		// analyze inject setter
 		if (type == RenderType.none)
@@ -148,16 +170,22 @@ public abstract class RenderEngine {
 		Render render = provideMethod.getAnnotation(Render.class);
 		entry.targetView = wrapper.getView().findViewById(render.id());//
 		if (entry.targetView == null) {
-			Log.e("RenderEngine",
-					"counl'd not find id by" + provideMethod.getName());
+			logger.warnLog("counld not find id by "
+					+ provideMethod.getName());
 		}
 		entry.renderType = (render == null ? RenderType.auto : render.type());
 
 		String setter = analyzeSetter(provideMethod.getReturnType(), render);
-		if (entry.targetView != null && setter != null) {
+		if (entry.targetView != null && setter != null && entry.renderType!=RenderType.image) {
 			try {
-				entry.renderMethod = Mirror.me(entry.targetView).findMethod(
-						setter, provideMethod.getReturnType());
+				if (entry.renderType == RenderType.auto
+						|| entry.renderType == RenderType.custom)
+					entry.renderMethod = Mirror.me(entry.targetView)
+							.findMethod(setter, provideMethod.getReturnType());
+				else
+					entry.renderMethod = Mirror.me(entry.targetView)
+							.findMethod(setter,
+									mappingType.get(entry.renderType));
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			}
@@ -174,12 +202,18 @@ public abstract class RenderEngine {
 		entry.renderType = render == null ? RenderType.auto : render.type();
 
 		String setter = analyzeSetter(provideField.getType(), render);
-		if (entry.targetView != null && setter != null) {
+		if (entry.targetView != null && setter != null && entry.renderType!=RenderType.image) {
 			try {
-				entry.renderMethod = Mirror.me(entry.targetView).findMethod(
-						setter, provideField.getType());
+				if (entry.renderType == RenderType.auto
+						|| entry.renderType == RenderType.custom)
+					entry.renderMethod = Mirror.me(entry.targetView)
+							.findMethod(setter, provideField.getType());
+				else
+					entry.renderMethod = Mirror.me(entry.targetView)
+							.findMethod(setter,
+									mappingType.get(entry.renderType));
 			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
+				logger.warnLog(e.getMessage());
 			}
 		}
 		return entry;
@@ -201,13 +235,19 @@ public abstract class RenderEngine {
 					entry.renderData + "", (ImageView) entry.targetView),
 					displayer);
 		}
+		//handle type cast
+		//TODO 增加所有的常用类型cast
+		if(entry.renderType==RenderType.text){
+			entry.renderData=String.valueOf(entry.renderData);
+		}
+		
 		if (entry.renderMethod == null)
 			return;
 		try {
 			// do render
 			entry.renderMethod.invoke(entry.targetView, entry.renderData);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warnLog(e.getMessage());
 		}
 		entry.renderData = null;// recyle data
 	}
@@ -222,8 +262,6 @@ public abstract class RenderEngine {
 	 */
 	public static void render(View view, Object data, ImageLoader loader,
 			ImageDisplayer displayer) {
-		// TODO 增加cache，加速映射效率.重构render方法
-
 		if (view == null || data == null) {
 			throw new NullPointerException(String.format("view %s data %s",
 					view, data));
@@ -251,12 +289,12 @@ public abstract class RenderEngine {
 		HashMap<Class<?>, ArrayList<AnalyzedData>> cachedData = (HashMap<Class<?>, ArrayList<AnalyzedData>>) view
 				.getTag();
 		ArrayList<AnalyzedData> analyzedEntries = null;
-		//try to load by cache
-		if(cachedData!=null){
-			analyzedEntries=cachedData.get(data.getClass());
+		// try to load by cache
+		if (cachedData != null) {
+			analyzedEntries = cachedData.get(data.getClass());
 		}
-		if(analyzedEntries==null){
-			analyzedEntries=new ArrayList<RenderEngine.AnalyzedData>();
+		if (analyzedEntries == null) {
+			analyzedEntries = new ArrayList<RenderEngine.AnalyzedData>();
 			// analyze field
 			for (Field field : candidates) {
 				field.setAccessible(true);
@@ -278,9 +316,10 @@ public abstract class RenderEngine {
 				analyzedData.provideMethod = method;
 				analyzedEntries.add(analyzedData);
 			}
-			//save cache
-			if(cache){
-				if(cachedData==null) cachedData=new HashMap<Class<?>, ArrayList<AnalyzedData>>();
+			// save cache
+			if (cache) {
+				if (cachedData == null)
+					cachedData = new HashMap<Class<?>, ArrayList<AnalyzedData>>();
 				cachedData.put(data.getClass(), analyzedEntries);
 				view.setTag(cachedData);
 			}

@@ -34,7 +34,7 @@ public abstract class LoadableActivity<T extends Serializable> extends BaseActiv
 	 * 获取加载器
 	 * @return
 	 */
-	public abstract BeanLoader<?> getLoader();
+	public abstract BeanLoader getLoader();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

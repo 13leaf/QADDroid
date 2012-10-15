@@ -52,7 +52,7 @@ public abstract class BaseLoadService<Param,Result> {
 		{
 			return onLoad(loadParam);
 		}else {
-			logger.debugLog("invalidate loadParam "+loadParam);
+			logger.errorLog("invalidate loadParam "+loadParam);
 			return null;
 		}
 	}

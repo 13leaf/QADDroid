@@ -307,7 +307,7 @@ public class WaterFall extends BaseActivity implements PageLoader<ArrayList<Fall
 	Handler handler=new Handler();
 	File cacheFolder = new File(
 			Environment.getExternalStorageDirectory(), "waterfall2");
-	BeanLoader<Object> loader=new BeanLoader<Object>();
+	BeanLoader loader=new BeanLoader();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

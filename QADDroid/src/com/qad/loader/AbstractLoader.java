@@ -165,7 +165,7 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		// filter duplicate
 		if ((flag & FLAG_FILTER_DUPLICATE) == FLAG_FILTER_DUPLICATE) {
 			if (submitedTask.contains(context)) {
-				logger.debugLog("detect duplicate request,filter it");
+				logger.warnLog("detect duplicate request,filter it");
 				return;
 			} else {
 				submitedTask.add(new LoadContext<Param,Target,Result>(context));
@@ -311,12 +311,12 @@ public abstract class AbstractLoader<Param, Target, Result> implements
 		}
 		// filter if invalidate
 		if (!validateTarget(context)) {
-			logger.debugLog("invalidate target,won't callback!");
+			logger.errorLog("invalidate target,won't callback!");
 			return;
 		}
 
 		if (!validateResult(context)) {
-			logger.debugLog("invalidate result ,abandon it!");
+			logger.errorLog("invalidate result ,abandon it!");
 			abandon(context);
 			notifyListeners(context, false);
 			if(callback!=null) callback.onLoadFail();

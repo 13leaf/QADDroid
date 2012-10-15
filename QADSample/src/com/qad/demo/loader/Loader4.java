@@ -22,7 +22,7 @@ import com.qad.loader.service.ParseAble;
 
 public class Loader4 extends BaseActivity implements LoadListener{
 
-	private BeanLoader<Activity> loader=new BeanLoader<Activity>();
+	private BeanLoader loader=new BeanLoader();
 	
 	private String weatherUrl="http://m.weather.com.cn/data/101200101.html";
 	

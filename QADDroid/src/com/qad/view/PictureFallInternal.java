@@ -85,6 +85,8 @@ public class PictureFallInternal extends View {
 	}
 
 	private void init() {
+		logger.closeLogger();
+		
 		defaultPaint = new Paint();
 		defaultPaint.setColor(Color.WHITE);
 		defaultPaint.setStyle(Style.FILL);
@@ -172,7 +174,7 @@ public class PictureFallInternal extends View {
 				&& !pageManager.isLast() && t + parentHeight + fix > mHeight) {
 			pageManager.next();
 		}
-		logger.testLog("recycle " + outEntries.size());
+		logger.debugLog("recycle " + outEntries.size());
 	}
 
 	private LoadListener listener = new LoadListener() {
@@ -190,7 +192,7 @@ public class PictureFallInternal extends View {
 			FallEntry entry = (FallEntry) context.getTarget();
 			Bitmap result = (Bitmap) context.getResult();
 			if (outEntries != null && outEntries.contains(entry)) {
-				logger.testLog("ignore entry " + entry.top + "," + scrollY
+				logger.debugLog("ignore entry " + entry.top + "," + scrollY
 						+ "-" + (scrollY + parentHeight));
 				return;
 			}
@@ -310,6 +312,9 @@ public class PictureFallInternal extends View {
 	protected void onDrawEntry(Canvas canvas, FallEntry fallEntry) {
 	}
 
+	boolean beginMove;
+	float moveOriginy;
+	float minIgnoreLength=50;
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (entries == null)
@@ -330,8 +335,20 @@ public class PictureFallInternal extends View {
 				selectedEntry.isSelected = false;
 				clickListener.onFallClicked(selectedEntry);
 			}
+			beginMove=false;
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if(!beginMove){
+				beginMove=true;
+				moveOriginy=event.getRawY();
+			}
+			if(Math.abs(moveOriginy-event.getRawY())>minIgnoreLength
+					&& selectedEntry!=null){
+				selectedEntry.isSelected=false;
+			}
 			break;
 		default:
+			beginMove=false;
 			if (selectedEntry != null)
 				selectedEntry.isSelected = false;
 			break;
@@ -385,6 +402,23 @@ public class PictureFallInternal extends View {
 		}
 		requestLayout();
 	}
+	
+	/**
+	 * 在首行进行插入
+	 * @param newEntry
+	 */
+	public void addEntry(FallEntry newEntry)
+	{
+		if(entries!=null && entries.size()>0){
+			newEntry.scale(regularWidth);
+			int selectedCol=minColIndex(score);
+			//insert at top
+			entries.get(selectedCol).add(0, newEntry);
+			score[selectedCol]+=newEntry.height+ypadding;
+			resizeEntries(entries.get(selectedCol));
+			requestLayout();
+		}
+	}
 
 	public void addEntries(ArrayList<FallEntry> all) {
 		resizeEntries(all);
@@ -397,8 +431,7 @@ public class PictureFallInternal extends View {
 	}
 
 	private void ensureEntries() {
-		if (getVisibility() != View.VISIBLE || regularWidth == 0
-				|| entries == null)
+		if (getVisibility() != View.VISIBLE || entries == null)
 			return;
 		for (ArrayList<FallEntry> col:entries) {
 			resizeEntries(col);
@@ -406,7 +439,9 @@ public class PictureFallInternal extends View {
 	}
 
 	private void resizeEntries(ArrayList<FallEntry> myEntries) {
+		if(regularWidth==0) return;//not prepared to scale
 		int mTop = ypadding;
+		logger.debugLog("scale:"+regularWidth);
 		for (FallEntry entry : myEntries) {
 			entry.scale(regularWidth);
 			entry.top = mTop;
@@ -615,7 +650,7 @@ public class PictureFallInternal extends View {
 			if (max < colHeight)
 				max = colHeight;
 		}
-		return max;
+		return max+ypadding;
 	}
 
 	private int minColIndex(int[] fix) {

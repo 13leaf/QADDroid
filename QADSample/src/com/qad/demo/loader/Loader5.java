@@ -58,7 +58,7 @@ public class Loader5 extends LoadableActivity<BlogList>{
 		}
 	}
 	
-	BeanLoader<Activity> loader=new BeanLoader<Activity>();
+	BeanLoader loader=new BeanLoader();
 	ImageLoader imageLoader;
 	MyStateAble stateAble=new MyStateAble();
 	File cacheFolder = new File(Environment.getExternalStorageDirectory(),
@@ -97,7 +97,7 @@ public class Loader5 extends LoadableActivity<BlogList>{
 	}
 
 	@Override
-	public BeanLoader<?> getLoader() {
+	public BeanLoader getLoader() {
 		return loader;
 	}
 	

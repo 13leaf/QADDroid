@@ -13,7 +13,9 @@ public class WLog {
 	
 	private static final String TEST_TAG="13leaf";
 	
-	private static boolean closed=false;
+	private static boolean closedGlobal=false;
+	
+	private boolean closed=false;
 	
 	public WLog(final Class<?> targetClazz)
 	{
@@ -25,15 +27,24 @@ public class WLog {
 		return new WLog(targetClazz);
 	}
 	
-	public static void closeLogger()
+	/**
+	 * 关闭所有logger
+	 */
+	public static void closeAllLogger()
+	{
+		closedGlobal=true;
+	}
+	
+	public void openLogger()
+	{
+		closed=false;
+	}
+	
+	public void closeLogger()
 	{
 		closed=true;
 	}
 	
-	public static void openLogger()
-	{
-		closed=false;
-	}
 	
 	/**
 	 * 添加日志输出文件,用于调试使用。
@@ -41,7 +52,7 @@ public class WLog {
 	 * @param msg	要输出的日志内容
 	 */
 	public void debugLog(Object msg){
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.d(myName, msg+"");
 	}
 	
@@ -51,34 +62,34 @@ public class WLog {
 	 * @param msg	要输出的日志内容
 	 */
 	public void errorLog(Object msg){
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.e(myName,msg+"");
 	}
 
 	/**
-	 * 使用13leaf作为专属的Tag,方便筛选显示
+	 * 使用13leaf作为专属的Tag。用作组件级别的调试
 	 * @param msg
 	 */
 	public void testLog(Object msg){
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.d(TEST_TAG,msg+"");
 	}
 	
 	public void warnLog(Object msg)
 	{
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.w(myName,msg+"");
 	}
 	
 	public void infoLog(Object msg)
 	{
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.i(myName,msg+"");
 	}
 	
 	public void verboseLog(Object msg)
 	{
-		if(!closed)
+		if(!closed && !closedGlobal)
 			Log.v(myName, msg+"");
 	}
 

@@ -44,6 +44,7 @@ public abstract class ListLoadableActivity<T extends PageEntity> extends Loadabl
 		if(firstLoad){
 			getStateAble().showLoading();
 		}
+		loadNo=pageNo;
 		return false;
 	}
 	
@@ -56,7 +57,7 @@ public abstract class ListLoadableActivity<T extends PageEntity> extends Loadabl
 		}
 		PageEntity entity=(PageEntity) context.getResult();
 		pageSum=entity.getPageSum();
-		getPager().notifyPageLoad(LOAD_COMPLETE, ++loadNo, pageSum,entity.getData());
+		getPager().notifyPageLoad(LOAD_COMPLETE, loadNo, pageSum,entity.getData());
 	}
 	
 	@Override

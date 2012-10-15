@@ -40,7 +40,7 @@ public class BaseApplication extends Application implements AppManager{
 		PhoneManager phoneManager=PhoneManager.getInstance(this);//init PhoneManager
 		ApnManager apnManager=ApnManager.getInstance(this);
 		phoneManager.addOnNetWorkChangeListioner(apnManager);
-		if(!isDebugMode()) WLog.closeLogger();
+		if(!isDebugMode()) WLog.closeAllLogger();
 	}
 
 	

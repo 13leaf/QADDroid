@@ -83,8 +83,9 @@ public class HttpTextLoadService<T> extends BaseLoadService<String, T> {
 					"Unsupport load Bitmap for this class!Please use HttpResouceLoadService for load resource.");
 		}*/
 		try {
+			logger.debugLog(url);
 			String content = HttpManager.getHttpText(url);
-			logger.debugLog("load " + url + " from Http ok!" + content);
+			logger.debugLog(content);
 			result = parseAble.parse(content);
 			return result;
 		} catch (ClientProtocolException e) {
@@ -92,7 +93,7 @@ public class HttpTextLoadService<T> extends BaseLoadService<String, T> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
-			logger.errorLog("occur parse error!");
+			logger.errorLog("occur parse error!"+e.getMessage());
 			e.printStackTrace();
 		}
 		logger.warnLog("load " + url + " from Http fail!");

@@ -28,12 +28,13 @@ public class MixedCacheService<T> extends BaseCacheLoadService<String, T> implem
 	
 	public MixedCacheService()
 	{
-		maxSize=DEFAULT_CACHE_SIZE;
+		this(DEFAULT_CACHE_SIZE);
 	}
 	
 	public MixedCacheService(int maxSize)
 	{
 		this.maxSize=maxSize;
+		logger.closeLogger();
 	}
 	
 	/**

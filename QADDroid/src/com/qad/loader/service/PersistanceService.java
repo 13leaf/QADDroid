@@ -39,6 +39,7 @@ public class PersistanceService<Result> extends
 	public PersistanceService(File cacheDir,long expiredTimeSpan) {
 		setCacheDir(cacheDir);
 		setExpiredTimeSpan(expiredTimeSpan);
+//		logger.closeLogger();
 	}
 	
 	public PersistanceService(File cacheDir) {
@@ -55,7 +56,7 @@ public class PersistanceService<Result> extends
 		if (isSuccess)
 			logger.debugLog("create cacheDir:" + cacheDir + " ok!");
 		else {
-			logger.warnLog("create cacheDir:" + cacheDir + " fail!");
+			logger.errorLog("create cacheDir:" + cacheDir + " fail!");
 		}
 	}
 	
@@ -108,8 +109,9 @@ public class PersistanceService<Result> extends
 						+ cacheTarget.getAbsolutePath());
 				return null;
 			}
+			logger.debugLog(url);
 			result = ((Result) Files.deserializeObject(getCacheFile(url)));
-			logger.debugLog("load " + url + " ok!");
+			logger.debugLog(result);
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,7 +128,7 @@ public class PersistanceService<Result> extends
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 			return new File(cacheDir, fileName);
 		else {
-			logger.warnLog("SDCard not mounted,change cacheDir to default");
+			logger.errorLog("SDCard not mounted,change cacheDir to default");
 			return new File(Environment.getDownloadCacheDirectory(), fileName);
 		}
 	}
@@ -149,7 +151,7 @@ public class PersistanceService<Result> extends
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		logger.debugLog("save " + loadKey + " fail!");
+		logger.warnLog("save " + loadKey + " fail!");
 		return false;
 	}
 

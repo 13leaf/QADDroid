@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.Settings;
 
 /**
  * 封装访问系统自带的组件。
@@ -102,6 +103,16 @@ public class IntentFactory {
 	{
 		Intent intent=new Intent(Intent.ACTION_WEB_SEARCH,Uri.fromFile(f));
 		return intent;
+	}
+	
+	/**
+	 * 位置设置Intent
+	 * @return
+	 */
+	public static Intent getLocationSetting()
+	{
+		Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		return settingsIntent;
 	}
 	
 	

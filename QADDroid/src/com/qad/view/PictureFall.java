@@ -143,4 +143,8 @@ public class PictureFall extends ScrollView{
 	public void destroy() {
 		internal.destroy();
 	}
+
+	public void addEntry(FallEntry newEntry) {
+		internal.addEntry(newEntry);
+	}
 }

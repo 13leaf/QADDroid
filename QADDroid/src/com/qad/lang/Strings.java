@@ -1,5 +1,6 @@
 package com.qad.lang;
 
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -644,5 +645,44 @@ public abstract class Strings {
 	{
 		if(ch==0x3000) return true;//特殊处理空格
 		return ch>0xff00&&ch<0xff5f;
+	}
+	
+	//******* url help
+	
+	/**
+	 * 添加url的Param参数
+	 * @param originUrl 基础url，也许已经包括了参数以及片段
+	 * @param param 参数 xx=xx[&yy=yy..]这种形式
+	 * @return 原始参数插入Param参数后的最终拼接url(如果有原始的参数或者片段，也将包括进去)
+	 */
+	public static String appendUrlParam(String originUrl,String param)
+	{
+		if(originUrl==null || param==null)
+			return originUrl;
+		int paramStart=originUrl.indexOf('?');//search param start
+		int fragmentStart=originUrl.indexOf('#');//search param end
+		String baseUrl=originUrl;
+		String fragment="";
+		if(paramStart!=-1){
+			baseUrl=originUrl.substring(0,paramStart);
+		}
+		if(paramStart==-1 && fragmentStart!=-1){
+			baseUrl=originUrl.substring(0,fragmentStart);
+		}
+		if(fragmentStart!=-1){
+			fragment=originUrl.substring(fragmentStart+1);
+		}
+		String baseParam="";
+		if(paramStart!=-1 && fragmentStart!=-1){
+			baseParam=originUrl.substring(paramStart+1,fragmentStart);
+		}else if(paramStart!=-1){
+			baseParam=originUrl.substring(paramStart+1);
+		}
+		if(baseParam.length()!=0){
+			param=baseParam+"&"+param;
+		}
+		
+		String outUrl= baseUrl+"?"+param+(fragment.length()==0?"":"#"+fragment);
+		return outUrl;
 	}
 }
